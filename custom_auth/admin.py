@@ -1,8 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import GroupAdmin, UserAdmin
-from django.utils.translation import gettext, gettext_lazy as _
 
-from users.models import CustomGroup, User
+from custom_auth.models import CustomGroup, User
 
 
 @admin.register(CustomGroup)

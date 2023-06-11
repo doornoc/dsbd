@@ -45,7 +45,7 @@
                 {% for e in notices %}
                     <div class="card">
                         <div class="card-header">
-                            {% time_to_str e.created_at %} → {% time_to_str e.expired_at %}
+                            {% time_to_str e.start_at %} → {% time_to_str e.end_at %}
                             <span class="badge rounded-pill bg-secondary">{{ e.type1 }}</span>
                             {% if e.is_import %}<span class="badge rounded-pill bg-primary">重要</span>{% endif %}
                             {% if e.is_info %}<span class="badge rounded-pill bg-primary">情報</span>{% endif %}

@@ -11,7 +11,7 @@ class NoticeManager(models.Manager):
         notices = self.filter(
             Q(start_at__lte=now),
             Q(is_active=True),
-            Q(expired_at__gt=timezone.now()) | Q(expired_at__isnull=True)
+            Q(end_at__gt=timezone.now()) | Q(end_at__isnull=True)
         )
         return notices
 

@@ -4,15 +4,6 @@ from django.contrib.auth.admin import GroupAdmin, UserAdmin
 from custom_auth.models import CustomGroup, User, SignUpKey, UserActivateToken
 
 
-@admin.register(CustomGroup)
-class AdminGroup(GroupAdmin):
-    fieldsets = (
-        (None, {'fields': ('name',)}),
-    )
-    list_display = ('name',)
-    search_fields = ('name',)
-
-
 @admin.register(User)
 class AdminUser(UserAdmin):
     fieldsets = (
@@ -42,3 +33,12 @@ class AdminUserActivateToken(admin.ModelAdmin):
     )
     list_display = ('user', 'token', 'expired_at', 'is_used')
     search_fields = ('user', 'token', 'expired_at', 'is_used')
+
+
+@admin.register(CustomGroup)
+class AdminGroup(GroupAdmin):
+    fieldsets = (
+        (None, {'fields': ('name', "is_active", "admin_user", "comment")}),
+    )
+    list_display = ('name', "is_active", "comment")
+    search_fields = ('name', "is_active", "comment")

@@ -11,15 +11,6 @@ from django.db import models
 from django.utils import timezone
 
 
-class CustomGroup(Group):
-    class Meta:
-        verbose_name = 'グループ'
-        verbose_name_plural = "グループ"
-
-    def __str__(self):
-        return self.name
-
-
 class UserManager(BaseUserManager):
     def _create_user(self, username, email, password, **extra_fields):
         if not username:
@@ -178,3 +169,16 @@ class SignUpKey(models.Model):
     class Meta:
         verbose_name = 'サインアップ用のKey'
         verbose_name_plural = "サインアップ用のKey"
+
+
+class CustomGroup(Group):
+    is_active = models.BooleanField("アカウントステータス", default=False)
+    admin_user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    comment = models.CharField("comment", max_length=250, default="")
+
+    class Meta:
+        verbose_name = 'グループ'
+        verbose_name_plural = "グループ"
+
+    def __str__(self):
+        return self.name

@@ -80,7 +80,7 @@ limit-inference-results=100
 load-plugins=pylint_django
 
 # Django
-django-settings-module=jpnic_admin.settings
+django-settings-module=dsbd.settings
 
 # Pickle collected data for later comparisons.
 persistent=yes

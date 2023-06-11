@@ -18,4 +18,4 @@ exclude = '''
 '''
 
 #[tool.pylint.MASTER]
-#init-hook = "import runpy; runpy.run_path('./jpnic_admin/pylint_init_hook.py');'"
+#init-hook = "import runpy; runpy.run_path('./dsbd/pylint_init_hook.py');'"

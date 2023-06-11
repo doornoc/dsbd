@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2 class="card-title">チケット追加</h2>
+    <br/>
+    {% if id == 'select_init' %}
+        <p><b>チケットの種別を選んでください</b></p>
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" value={{ id }} name="id" hidden>
+            <div class="mb-3">
+                {{ init_form.ticket_type }}
+            </div>
+            <button type="submit" name="add" class="btn btn-primary">作成</button>
+        </form>
+    {% elif id == 'select_template' %}
+        <p><b>作成したいチケットを選んでください</b></p>
+        <table id="event_table" class="table">
+            <thead>
+            <tr>
+                <th scope="col">種別1</th>
+                <th scope="col">種別2</th>
+                <th scope="col">タイトル</th>
+                <th scope="col">その他</th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for e in template %}
+                <tr>
+                    <td>{{ e.type1 }}</td>
+                    <td>{{ e.type2 }}</td>
+                    <td>{{ e.title }}</td>
+                    <td>{{ e.comment }}</td>
+                    <td>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="text" value={{ id }} name="id" hidden>
+                            <input type="text" value="{{ ticket_type }}" name="ticket_type" hidden>
+                            <input type="text" value={{ e.id }} name="template_id" hidden>
+                            <button type="submit" name="add" class="btn btn-primary btn-sm">作成</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" value="{{ ticket_type }}" name="ticket_type" hidden>
+            <input type="text" value={{ e.id }} name="template_id" hidden>
+            <input type="text" value="add_ticket" name="id" hidden>
+            <div class="mb-3">
+                <div class="input-group">
+                    <span class="input-group-text">種別1/種別2</span>
+                    {{ form.type1 }}
+                    {{ form.type2 }}
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="id_title_label" class="form-label">タイトル</label>
+                {{ form.title }}
+            </div>
+            <div class="mb-3">
+                <label for="id_body_label" class="form-label">内容</label>
+                {{ form.body }}
+            </div>
+            <br/>
+            <button type="submit" name="add" class="btn btn-primary">作成</button>
+        </form>
+    {% endif %}
+{% endblock content %}

@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'custom_auth',
     'widget_tweaks',
     'dsbd.notice',
-    'dsbd.service'
+    'dsbd.service',
+    'dsbd.ticket'
 ]
 
 MIDDLEWARE = [

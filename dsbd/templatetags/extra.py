@@ -2,6 +2,7 @@ from django import template
 from django.conf import settings
 import datetime
 import markdown as md
+from pytz import timezone
 
 register = template.Library()
 
@@ -20,13 +21,10 @@ def url_replace(request, **kwargs):
 
 
 @register.simple_tag
-def time_to_str(gmt):
-    if gmt is None:
+def time_to_str(time):
+    if time is None:
         return "無期限"
-    jst = gmt + datetime.timedelta(hours=0)
-    if not gmt:
-        return "取得失敗"
-    return jst.strftime("%Y/%m/%d %H:%M")
+    return time.astimezone(timezone(settings.TIME_ZONE)).strftime("%Y/%m/%d %H:%M")
 
 
 @register.simple_tag

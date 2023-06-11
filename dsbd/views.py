@@ -98,7 +98,7 @@ def activate_user(request, activate_token):
 def index(request):
     notice_objects = Notice.objects.get_notice()
 
-    paginator = Paginator(notice_objects, int(request.GET.get("per_page", "20")))
+    paginator = Paginator(notice_objects, int(request.GET.get("per_page", "5")))
     page = int(request.GET.get("page", "1"))
     try:
         notices = paginator.page(page)

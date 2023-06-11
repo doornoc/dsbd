@@ -122,7 +122,7 @@ class UserActivateTokensManager(models.Manager):
 
 class UserActivateToken(models.Model):
     created_at = models.DateTimeField("作成日", default=timezone.now)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     token = models.UUIDField("Active token", default=uuid.uuid4)
     expired_at = models.DateTimeField("有効期限", default=user_activate_expire_date)
     is_used = models.BooleanField("使用済み", default=False)
@@ -181,7 +181,7 @@ class CustomGroupManager(models.Manager):
 class CustomGroup(Group):
     created_at = models.DateTimeField("作成日", default=timezone.now)
     is_active = models.BooleanField("アカウントステータス", default=False)
-    admin_user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    admin_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     comment = models.CharField("comment", max_length=250, default="", blank=True)
 
     objects = CustomGroupManager()

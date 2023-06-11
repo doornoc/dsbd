@@ -10,7 +10,7 @@ class AdminUser(UserAdmin):
         (None, {"fields": ("username", "password")}),
         ('Personal info', {'fields': ('first_name', 'last_name', 'email', 'groups')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_member', 'user_permissions')}),
-        ('Important dates', {'fields': ('last_login', 'date_joined')}),
+        ('Important dates', {'fields': ('last_login', 'created_at')}),
     )
     list_display = ('username', 'email', 'is_staff')
     search_fields = ('username', 'email')

@@ -60,7 +60,7 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     username_validator = UnicodeUsernameValidator()
 
-    date_joined = models.DateTimeField("date joined", default=timezone.now)
+    created_at = models.DateTimeField("date joined", default=timezone.now)
     username = models.CharField("username", max_length=150, validators=[username_validator], unique=True)
     first_name = models.CharField("first name", max_length=150, blank=True)
     last_name = models.CharField("last name", max_length=150, blank=True)
@@ -160,7 +160,7 @@ class SignUpKeyManager(models.Manager):
 
 class SignUpKey(models.Model):
     key = models.UUIDField("認証キー", default=uuid.uuid4, editable=True)
-    comment = models.CharField("コメント", max_length=200, default="")
+    comment = models.CharField("コメント", max_length=200, default="", blank=True)
     expired_at = models.DateTimeField("有効期限", default=sign_up_key_expire_date)
     is_used = models.BooleanField("使用済み", default=False)
 
@@ -171,10 +171,17 @@ class SignUpKey(models.Model):
         verbose_name_plural = "サインアップ用のKey"
 
 
+class CustomGroupManager(models.Manager):
+    def active_filter(self):
+        return self.filter(is_active=True)
+
+
 class CustomGroup(Group):
     is_active = models.BooleanField("アカウントステータス", default=False)
-    admin_user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
-    comment = models.CharField("comment", max_length=250, default="")
+    admin_user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    comment = models.CharField("comment", max_length=250, default="", blank=True)
+
+    objects = CustomGroupManager()
 
     class Meta:
         verbose_name = 'グループ'

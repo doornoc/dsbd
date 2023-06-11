@@ -26,7 +26,7 @@ class Service(models.Model):
     )
 
     group = models.OneToOneField(CustomGroup, on_delete=models.CASCADE)
-    created_at = models.DateTimeField("取得開始時刻", default=timezone.now, db_index=True)
+    created_at = models.DateTimeField("作成日", default=timezone.now, db_index=True)
     start_at = models.DateTimeField("サービス開始日", blank=True, null=True)
     end_at = models.DateTimeField("サービス終了日", blank=True, null=True)
     is_active = models.BooleanField("有効", default=True)

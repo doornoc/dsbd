@@ -21,6 +21,7 @@ class AdminUser(UserAdmin):
 class AdminSignUpKey(admin.ModelAdmin):
     fieldsets = (
         (None, {"fields": ("key", "comment", "expired_at", 'is_used')}),
+        ('Important dates', {'fields': ('created_at',)}),
     )
     list_display = ('key', 'comment', 'expired_at', 'is_used')
     search_fields = ('key', 'expired_at', 'is_used')
@@ -30,6 +31,7 @@ class AdminSignUpKey(admin.ModelAdmin):
 class AdminUserActivateToken(admin.ModelAdmin):
     fieldsets = (
         (None, {"fields": ("user", "token", "expired_at", "is_used")}),
+        ('Important dates', {'fields': ('created_at',)}),
     )
     list_display = ('user', 'token', 'expired_at', 'is_used')
     search_fields = ('user', 'token', 'expired_at', 'is_used')
@@ -39,6 +41,7 @@ class AdminUserActivateToken(admin.ModelAdmin):
 class AdminGroup(GroupAdmin):
     fieldsets = (
         (None, {'fields': ('name', "is_active", "admin_user", "comment")}),
+        ('Important dates', {'fields': ('created_at',)}),
     )
     list_display = ('name', "is_active", "comment")
     search_fields = ('name', "is_active", "comment")

@@ -18,7 +18,7 @@ class NoticeManager(models.Manager):
 
 class Notice(models.Model):
     class Meta:
-        ordering = ("-expired_at",)
+        ordering = ("-end_at",)
 
     SERVICE = "サービス情報"
     ETC = "その他"
@@ -28,9 +28,9 @@ class Notice(models.Model):
         (ETC, ETC),
     )
 
-    created_at = models.DateTimeField("取得開始時刻", default=timezone.now, db_index=True)
+    created_at = models.DateTimeField("作成日", default=timezone.now, db_index=True)
     start_at = models.DateTimeField("通知開始日", default=timezone.now)
-    expired_at = models.DateTimeField("有効期限", blank=True, null=True)
+    end_at = models.DateTimeField("通知終了日", blank=True, null=True)
     is_active = models.BooleanField("有効", default=True)
     type1 = models.CharField("type1", max_length=200, choices=TYPE1_CHOICES)
     title = models.CharField("title", max_length=250)

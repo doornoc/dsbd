@@ -60,7 +60,7 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     username_validator = UnicodeUsernameValidator()
 
-    created_at = models.DateTimeField("date joined", default=timezone.now)
+    created_at = models.DateTimeField("作成日", default=timezone.now)
     username = models.CharField("username", max_length=150, validators=[username_validator], unique=True)
     first_name = models.CharField("first name", max_length=150, blank=True)
     last_name = models.CharField("last name", max_length=150, blank=True)
@@ -121,6 +121,7 @@ class UserActivateTokensManager(models.Manager):
 
 
 class UserActivateToken(models.Model):
+    created_at = models.DateTimeField("作成日", default=timezone.now)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     token = models.UUIDField("Active token", default=uuid.uuid4)
     expired_at = models.DateTimeField("有効期限", default=user_activate_expire_date)
@@ -159,6 +160,7 @@ class SignUpKeyManager(models.Manager):
 
 
 class SignUpKey(models.Model):
+    created_at = models.DateTimeField("作成日", default=timezone.now)
     key = models.UUIDField("認証キー", default=uuid.uuid4, editable=True)
     comment = models.CharField("コメント", max_length=200, default="", blank=True)
     expired_at = models.DateTimeField("有効期限", default=sign_up_key_expire_date)
@@ -177,6 +179,7 @@ class CustomGroupManager(models.Manager):
 
 
 class CustomGroup(Group):
+    created_at = models.DateTimeField("作成日", default=timezone.now)
     is_active = models.BooleanField("アカウントステータス", default=False)
     admin_user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     comment = models.CharField("comment", max_length=250, default="", blank=True)

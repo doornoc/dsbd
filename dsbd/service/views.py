@@ -9,14 +9,14 @@ from dsbd.service.models import Service
 @login_required
 def index(request):
     services = None
-    try:
-        service_objects = Service.objects.get_service(
-            groups=request.user.groups.filter(customgroup__is_active=True).all())
+    error = None
+    group_filter = request.user.groups.filter(customgroup__is_active=True)
+    if group_filter.exists():
+        service_objects = Service.objects.get_service(groups=group_filter.all())
+    else:
+        error = "Groupに所属していません"
 
-    except ValueError as e:
-        error = "サービスが存在しません"
-
-    if not service_objects:
+    if not error:
         paginator = Paginator(service_objects, int(request.GET.get("per_page", "5")))
         page = int(request.GET.get("page", "1"))
         try:
@@ -25,5 +25,6 @@ def index(request):
             services = paginator.page(paginator.num_pages)
     context = {
         "services": services,
+        "error": error
     }
     return render(request, "service/index.html", context)

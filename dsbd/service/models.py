@@ -8,9 +8,6 @@ from dsbd.models import MediumTextField
 
 class ServiceManager(models.Manager):
     def get_service(self, groups):
-        print(groups)
-        if groups is None:
-            raise "グループに所属されていません"
         q = Q()
         q &= Q(is_active=True)
 

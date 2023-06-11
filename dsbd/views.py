@@ -2,12 +2,13 @@ from django.contrib.auth import logout as user_logout, authenticate, login as us
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, \
     PasswordResetCompleteView
-from django.http import HttpResponse
+from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 
 from custom_auth.models import UserActivateToken, SignUpKey, User
 from dsbd.form import LoginForm, ForgetForm, NewSetPasswordForm, SignUpForm
+from dsbd.notice.models import Notice
 
 
 def sign_in(request):
@@ -95,5 +96,14 @@ def activate_user(request, activate_token):
 
 @login_required
 def index(request):
-    context = {}
+    notice_objects = Notice.objects.get_notice()
+
+    paginator = Paginator(notice_objects, int(request.GET.get("per_page", "20")))
+    page = int(request.GET.get("page", "1"))
+    try:
+        notices = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        notices = paginator.page(paginator.num_pages)
+
+    context = {"notices": notices}
     return render(request, "menu.html", context)

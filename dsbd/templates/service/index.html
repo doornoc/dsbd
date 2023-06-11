@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2 class="card-title">サービス一覧</h2>
+    <br/>
+    {% if services %}
+        {% for e in services %}
+            <div class="card">
+                <div class="card-header">
+                    {% time_to_str e.start_at %} → {% time_to_str e.end_at %}
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ e.type1 }}</h5>
+                    {% autoescape off %}
+                        {% markdown e.content %}
+                    {% endautoescape %}
+                </div>
+            </div>
+            <br/>
+        {% endfor %}
+        <nav aria-label="...">
+            <ul class="pagination">
+                {% if services.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="?{% url_replace request page=services.previous_page_number %}">前へ</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">前へ</span>
+                    </li>
+                {% endif %}
+                {% if services.paginator.num_pages > 10 %}
+                    {% if services.number < 6 %}
+                        {#    先頭 9 ページの表示      #}
+                        {% for pg in services.paginator.page_range %}
+                            {% if forloop.counter0 < 9 %}
+                                {% if services.number == pg %}
+                                    <li class="page-item active">
+                                        {% else %}
+                                    <li class="page-item">
+                                {% endif %}
+                            <a class="page-link" href="?{% url_replace request page=pg %}">{{ pg }}</a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                    {% elif services.number < services.paginator.num_pages|add:-4 %}
+                        {#    手前 4 ページ | 現在のページ | 続き 4 ページ      #}
+                        {% for pg in services.paginator.page_range %}
+                            {% if services.number|add:-5 < pg and pg < services.number|add:5 %}
+                                {% if services.number == pg %}
+                                    <li class="page-item active">
+                                        {% else %}
+                                    <li class="page-item">
+                                {% endif %}
+                            <a class="page-link" href="?{% url_replace request page=pg %}">{{ pg }}</a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        {#   最後 9 ページの表示   #}
+                        {% for pg in services.paginator.page_range %}
+                            {% if forloop.counter0 > services.paginator.num_pages|add:-10 %}
+                                {% if services.number == pg %}
+                                    <li class="page-item active">
+                                        {% else %}
+                                    <li class="page-item">
+                                {% endif %}
+                            <a class="page-link" href="?{% url_replace request page=pg %}">{{ pg }}</a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% else %}
+                    {% for pg in services.paginator.page_range %}
+                        {% if services.number == pg %}
+                            <li class="page-item active">
+                                {% else %}
+                            <li class="page-item">
+                        {% endif %}
+                    <a class="page-link" href="?{% url_replace request page=pg %}">{{ pg }}</a>
+                    </li>
+                    {% endfor %}
+                {% endif %}
+                {% if services.has_next %}
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="?{% url_replace request page=services.next_page_number %}">次へ</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">次へ</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% else %}
+        <p>サービスがありません</p>
+    {% endif %}
+{% endblock content %}

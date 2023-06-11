@@ -31,6 +31,7 @@ urlpatterns = [
     path('forget/confirm/<uidb64>/<token>/', views.PasswordResetConfirm.as_view(), name='password_reset_confirm'),
     path('forget/complete/', views.PasswordResetComplete.as_view(), name='password_reset_complete'),
     path('activate/<uuid:activate_token>/', views.activate_user, name='activate_user'),
+    path("service/", include("dsbd.service.urls")),
     path('admin/', admin.site.urls),
 ]
 

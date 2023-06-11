@@ -42,8 +42,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'custom_auth',
+    'widget_tweaks',
     'dsbd.notice',
-    'widget_tweaks'
+    'dsbd.service'
 ]
 
 MIDDLEWARE = [

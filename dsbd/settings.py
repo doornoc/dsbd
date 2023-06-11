@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,6 +27,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+SITE_TITLE = "doornoc Dashboard"
+SITE_HEADER = "doornoc Dashboard"
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -35,7 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'custom_auth'
+    'debug_toolbar',
+    'custom_auth',
+    'widget_tweaks'
 ]
 
 MIDDLEWARE = [
@@ -53,7 +59,7 @@ ROOT_URLCONF = 'dsbd.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'dsbd/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -62,9 +68,14 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'builtins': ['dsbd.templatetags.extra'],
         },
     },
 ]
+
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'dsbd/static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 WSGI_APPLICATION = 'dsbd.wsgi.application'
 
@@ -78,6 +89,14 @@ DATABASES = {
     }
 }
 
+# E-Mail
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'ホスト情報'
+EMAIL_PORT = 'ポート情報'
+DEFAULT_FROM_EMAIL = 'デフォルト送信元'
+EMAIL_HOST_USER = 'ユーザー'
+EMAIL_HOST_PASSWORD = 'パスワード'
+EMAIL_USE_TLS = False
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -127,3 +146,11 @@ if DEBUG:
 
     hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
     INTERNAL_IPS = [ip[:-1] + "1" for ip in ips] + ["127.0.0.1"]
+
+LOGIN_URL = "sign_in"
+LOGIN_REDIRECT_URL = "/"
+
+DOMAIN_URL = "http://localhost:8000"
+
+USER_ACTIVATE_EXPIRED_DAYS = 7
+SIGN_UP_EXPIRED_DAYS = 7

@@ -19,7 +19,18 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
 
+from dsbd import views
+
 urlpatterns = [
+    path("", views.index, name="index"),
+    path("sign_in/", views.sign_in, name="sign_in"),
+    path("sign_out/", views.sign_out, name="sign_out"),
+    path("sign_up/", views.sign_up, name="sign_up"),
+    path('forget/', views.PasswordReset.as_view(), name='password_reset'),
+    path('forget/done/', views.PasswordResetDone.as_view(), name='password_reset_done'),
+    path('forget/confirm/<uidb64>/<token>/', views.PasswordResetConfirm.as_view(), name='password_reset_confirm'),
+    path('forget/complete/', views.PasswordResetComplete.as_view(), name='password_reset_complete'),
+    path('activate/<uuid:activate_token>/', views.activate_user, name='activate_user'),
     path('admin/', admin.site.urls),
 ]
 

@@ -8,11 +8,11 @@ class Ticket(admin.ModelAdmin):
     readonly_fields = ["created_at", "updated_at"]
     fieldsets = (
         (None, {"fields": ("created_at", "updated_at", "user", "group")}),
-        ('info', {'fields': ('type1', 'type2', 'title', 'body')}),
+        ('info', {'fields': ('template', 'title', 'body')}),
         ('Flags', {'fields': ('from_admin', 'is_solved', 'is_approve', 'is_reject')}),
     )
     list_display = (
-        "id", "created_at", "updated_at", "user", "group", 'type1', 'type2', 'title', "is_solved",)
+        "id", "created_at", "updated_at", "user", "group", 'template', 'title', "is_solved",)
     list_filter = ("is_solved",)
     search_fields = ('user', 'group', 'from_admin', 'is_solved', 'is_approve', 'is_reject')
 

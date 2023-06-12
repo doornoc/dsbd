@@ -3,7 +3,7 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import render, redirect
 
 from custom_auth.models import CustomGroup
-from dsbd.ticket.form import TicketForm, TicketInitForm
+from dsbd.ticket.form import TicketForm
 from dsbd.ticket.models import Ticket, Template
 
 
@@ -26,63 +26,43 @@ def index(request):
 @login_required
 def ticket_add(request):
     template_id = None
-    ticket_type = "user"
     template = Template.objects.get_template()
-    form = TicketForm()
-    init_form = TicketInitForm()
-    id = 'select_init'
     groups = request.user.groups.filter(customgroup__is_active=True)
-    if request.method == 'GET':
-        ticket_type_template = [('user', 'ユーザチケット')]
-        if groups.exists():
-            for group in groups:
-                ticket_type_template.append(
-                    (str(group.id), 'グループチケット (Group' + str(group.id) + ': ' + group.name + ')')
-                )
-            init_form.fields['ticket_type'].choices = ticket_type_template
+    form = TicketForm(groups, request.POST)
+    id = ""
 
-    elif request.method == 'POST':
-        id = request.POST.get("id", "ticket_regist")
+    if request.method == 'POST':
         template_id = int(request.POST.get("template_id", 0))
-        ticket_type = request.POST.get("ticket_type", "user")
-        if id == 'select_init':
-            init_form = TicketInitForm(request.POST)
-            id = 'select_template'
-        elif id == 'select_template':
-            template = Template.objects.get(id=template_id)
-            form = TicketForm(initial={
-                'type1': template.type1,
-                'type2': template.type2,
-                'title': template.title,
-                'body': template.body
-            })
-            id = 'ticket_regist'
-        else:
+        if template_id != 0 and form.is_valid():
             group = None
+            ticket_type = form.cleaned_data.get('ticket_type')
             if ticket_type != 'user':
                 # この場合はgroup
                 if groups.exists() & groups.filter(id=int(ticket_type)).exists():
                     group = CustomGroup.objects.filter(id=int(ticket_type)).first()
-
-            form = TicketForm(request.POST)
             if form.is_valid():
                 Ticket.objects.create(
                     group=group,
                     user=request.user,
-                    type1=form.cleaned_data.get('type1'),
-                    type2=form.cleaned_data.get('type2'),
+                    template=Template.objects.get(id=template_id),
                     title=form.cleaned_data.get('title'),
                     body=form.cleaned_data.get('body'),
                 ).save()
-
                 return redirect('/ticket')
+
+        template = Template.objects.get(id=template_id)
+        form = TicketForm(groups, initial={
+            'type1': template.type1,
+            'type2': template.type2,
+            'title': template.title,
+            'body': template.body
+        })
+        id = 'ticket_regist'
 
     context = {
         'id': id,
         'template': template,
-        'init_form': init_form,
         'form': form,
         'template_id': template_id,
-        'ticket_type': ticket_type
     }
     return render(request, "ticket/add.html", context)

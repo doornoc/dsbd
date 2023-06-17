@@ -35,6 +35,7 @@ SITE_HEADER = "doornoc Dashboard"
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,7 +46,8 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'dsbd.notice',
     'dsbd.service',
-    'dsbd.ticket'
+    'dsbd.ticket',
+    'dsbd.custom_admin'
 ]
 
 MIDDLEWARE = [
@@ -83,6 +85,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 WSGI_APPLICATION = 'dsbd.wsgi.application'
 
+# Channels
+ASGI_APPLICATION = 'dsbd.asgi.application'
+
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
@@ -118,6 +123,13 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# Channel
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/

@@ -37,6 +37,18 @@ class TicketManager(models.Manager):
         tickets = self.filter(q).order_by('is_solved', 'id')
         return tickets
 
+    def get_one_ticket(self, ticket_id, user):
+        q = Q()
+        q.add(Q(user=user), Q.OR)
+        group_filter = user.groups.filter(customgroup__is_active=True)
+        if group_filter.exists():
+            for group in user.groups.filter(customgroup__is_active=True).all():
+                q.add(Q(group=group), Q.OR)
+        return self.filter(id=ticket_id).filter(q).first()
+
+    def get_chat(self, ticket_id):
+        return self.get(id=ticket_id).chat_set.all()
+
 
 class Ticket(models.Model):
     template = models.ForeignKey(Template, on_delete=models.CASCADE)
@@ -61,7 +73,7 @@ class Ticket(models.Model):
 class Chat(models.Model):
     created_at = models.DateTimeField("作成日", auto_now_add=True, db_index=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    group = models.ForeignKey(CustomGroup, on_delete=models.CASCADE)
+    group = models.ForeignKey(CustomGroup, on_delete=models.CASCADE, blank=True, null=True)
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
     body = MediumTextField(verbose_name="内容", default="", blank=True)
     is_admin = models.BooleanField("運営委員がコメント", default=False)

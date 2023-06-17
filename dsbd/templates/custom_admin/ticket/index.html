@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
-    <h2 class="card-title">チケット一覧</h2>
+    <h2 class="card-title">チケット一覧(管理者側)</h2>
     <br/>
-    <a class="btn btn-primary btn-sm " href="{% url 'ticket:add' %}" role="button" aria-expanded="false">チケット追加</a>
+    {#    <a class="btn btn-primary btn-sm " href="{% url 'ticket:add' %}" role="button" aria-expanded="false">チケット追加</a>#}
     <br/>
     <br/>
     {% if tickets %}
@@ -22,7 +22,7 @@
                         <div class="row">
                             <form method="post">
                                 {% csrf_token %}
-                                <a class="btn btn-primary btn-sm" href="{% url 'ticket:chat' e.id %}">チャット</a>
+                                <a class="btn btn-primary btn-sm" href="{% url 'custom_admin:chat' e.id %}">チャット</a>
                                 <input type="text" value={{ e.id }} name="id" hidden>
                                 {% if e.is_solved %}
                                     <button type="submit" class="btn btn-danger btn-sm" name="no_solved">未解決</button>

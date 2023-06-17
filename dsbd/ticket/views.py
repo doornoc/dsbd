@@ -10,6 +10,17 @@ from dsbd.ticket.models import Ticket, Template
 @login_required
 def index(request):
     ticket_objects = Ticket.objects.get_ticket(user=request.user)
+    if request.method == 'POST':
+        id = request.POST.get('id', 0)
+        if "no_solved" in request.POST:
+            ticket = Ticket.objects.get_one_ticket(int(id), request.user)
+            ticket.is_solved = False
+            ticket.save()
+        elif "solved" in request.POST:
+            ticket = Ticket.objects.get_one_ticket(int(id), request.user)
+            ticket.is_solved = True
+            ticket.save()
+        return redirect('/ticket')
 
     paginator = Paginator(ticket_objects, int(request.GET.get("per_page", "5")))
     page = int(request.GET.get("page", "1"))
@@ -66,3 +77,12 @@ def ticket_add(request):
         'template_id': template_id,
     }
     return render(request, "ticket/add.html", context)
+
+
+@login_required
+def chat(request, ticket_id):
+    ticket = Ticket.objects.get_one_ticket(ticket_id, request.user)
+    if not ticket:
+        return render(request, "ticket/chat_error.html", {})
+    context = {"ticket": ticket, "chats": ticket.chat_set.order_by('created_at').all()}
+    return render(request, "ticket/chat.html", context)

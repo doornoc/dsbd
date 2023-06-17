@@ -33,6 +33,7 @@ urlpatterns = [
     path('activate/<uuid:activate_token>/', views.activate_user, name='activate_user'),
     path("service/", include("dsbd.service.urls")),
     path("ticket/", include("dsbd.ticket.urls")),
+    path('admin/custom/', include("dsbd.custom_admin.urls")),
     path('admin/', admin.site.urls),
 ]
 

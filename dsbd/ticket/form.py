@@ -24,4 +24,4 @@ class TicketForm(forms.Form):
                 ticket_type_template.append(
                     (str(group.id), 'グループチケット (Group' + str(group.id) + ': ' + group.name + ')')
                 )
-            self.fields['ticket_type'].choices = ticket_type_template
+        self.fields['ticket_type'].choices = ticket_type_template

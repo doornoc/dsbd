@@ -20,6 +20,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 from dsbd import views
+from custom_auth import views as custom_auth_views
 
 urlpatterns = [
     path("", views.index, name="index"),
@@ -33,6 +34,10 @@ urlpatterns = [
     path('activate/<uuid:activate_token>/', views.activate_user, name='activate_user'),
     path("service/", include("dsbd.service.urls")),
     path("ticket/", include("dsbd.ticket.urls")),
+    path("group/", custom_auth_views.get_groups, name="get_groups"),
+    path("group/add/", custom_auth_views.add_group, name="add_group"),
+    path("group/edit/<int:group_id>", custom_auth_views.edit_group, name="edit_group"),
+    path("group/permission/<int:group_id>", custom_auth_views.permission_group, name="permission_group"),
     path('admin/custom/', include("dsbd.custom_admin.urls")),
     path('admin/', admin.site.urls),
 ]

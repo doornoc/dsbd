@@ -40,3 +40,6 @@ class Notice(models.Model):
     is_info = models.BooleanField("情報", default=False)
 
     objects = NoticeManager()
+
+    def __str__(self):
+        return "%s: %s" % (self.id, self.title)

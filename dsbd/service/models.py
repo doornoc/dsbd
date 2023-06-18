@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
-from custom_auth.models import CustomGroup
+from custom_auth.models import Group
 from dsbd.models import MediumTextField
 
 
@@ -25,7 +25,7 @@ class Service(models.Model):
         (ETC, ETC),
     )
 
-    group = models.ForeignKey(CustomGroup, on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
     created_at = models.DateTimeField("作成日", default=timezone.now, db_index=True)
     start_at = models.DateTimeField("サービス開始日", blank=True, null=True)
     end_at = models.DateTimeField("サービス終了日", blank=True, null=True)
@@ -34,3 +34,10 @@ class Service(models.Model):
     content = MediumTextField(verbose_name="内容", default="", blank=True)
 
     objects = ServiceManager()
+
+    class Meta:
+        verbose_name = 'サービス'
+        verbose_name_plural = "サービス"
+
+    def __str__(self):
+        return "%d[%s]: %s" % (self.id, self.group.name, self.type1)

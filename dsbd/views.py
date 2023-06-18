@@ -47,9 +47,14 @@ def sign_up(request):
 
         else:
             if form.is_valid():
-                error = form.create_user(key)
-                if not error:
+                try:
+                    form.create_user(key)
                     return render(request, "sign_up_success.html", {})
+                except ValueError as error:
+                    print(error)
+                    error = error
+                except:
+                    error = '何かしらのエラーが発生しました'
     context = {'form': form, 'key': key, 'key_error': key_error, 'error': error}
     print(context)
 
@@ -79,18 +84,13 @@ class PasswordResetComplete(PasswordResetCompleteView):
 
 
 def activate_user(request, activate_token):
-    result = UserActivateToken.objects.activate_user_by_token(activate_token)
-    message = ''
-    if result["error"]:
-        message = result["error"]
-    else:
-        if hasattr(result, 'is_active'):
-            if result.is_active:
-                message = 'ユーザーのアクティベーションが完了しました'
-            if not result.is_active:
-                message = 'アクティベーションが失敗しています。管理者に問い合わせてください'
-        if not hasattr(result, 'is_active'):
-            message = 'エラーが発生しました'
+    message = 'ユーザーのアクティベーションが完了しました'
+    try:
+        UserActivateToken.objects.activate_user_by_token(activate_token)
+    except ValueError as error:
+        message = error
+    except:
+        message = 'エラーが発生しました。管理者に問い合わせてください'
     return render(request, "activate.html", {"message": message})
 
 

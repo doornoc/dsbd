@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import render, redirect
 
-from custom_auth.models import CustomGroup
+from custom_auth.models import Group
 from dsbd.ticket.form import TicketForm
 from dsbd.ticket.models import Ticket, Template
 
@@ -38,7 +38,7 @@ def index(request):
 def ticket_add(request):
     template_id = None
     template = Template.objects.get_template()
-    groups = request.user.groups.filter(customgroup__is_active=True)
+    groups = request.user.groups.filter(is_active=True)
     form = TicketForm(groups, request.POST)
     id = ""
 
@@ -50,7 +50,7 @@ def ticket_add(request):
             if ticket_type != 'user':
                 # この場合はgroup
                 if groups.exists() & groups.filter(id=int(ticket_type)).exists():
-                    group = CustomGroup.objects.filter(id=int(ticket_type)).first()
+                    group = Group.objects.filter(id=int(ticket_type)).first()
             if form.is_valid():
                 Ticket.objects.create(
                     group=group,

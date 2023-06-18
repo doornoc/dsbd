@@ -4,11 +4,50 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth.models import PermissionsMixin, AbstractUser, Group, GroupManager
+from django.contrib.auth.models import PermissionsMixin, AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.mail import send_mail
 from django.db import models
 from django.utils import timezone
+
+
+class GroupManager(models.Manager):
+    def active_filter(self):
+        return self.filter(is_active=True)
+
+    def create_group(self, name, zipcode, address, address_en, email, phone, **extra_fields):
+        extra_fields.setdefault("is_active", False)
+        return self.create(
+            name=name,
+            zipcode=zipcode,
+            address=address,
+            address_en=address_en,
+            email=email,
+            phone=phone,
+            **extra_fields
+        )
+
+
+class Group(models.Model):
+    name = models.CharField("name", max_length=150, unique=True)
+    created_at = models.DateTimeField("作成日", default=timezone.now)
+    is_active = models.BooleanField("有効", default=False)
+    comment = models.CharField("comment", max_length=250, default="", blank=True)
+    zipcode = models.CharField("郵便番号", max_length=10, default="")
+    address = models.CharField("住所", max_length=250, default="")
+    address_en = models.CharField("住所(English)", max_length=250, default="")
+    email = models.EmailField("組織メールアドレス", max_length=250, default="")
+    phone = models.CharField("phone", max_length=30, default="")
+    country = models.CharField("居住国", max_length=100, default="Japan")
+
+    objects = GroupManager()
+
+    class Meta:
+        verbose_name = "グループ"
+        verbose_name_plural = "グループ"
+
+    def __str__(self):
+        return "%s: %s" % (self.id, self.name)
 
 
 class UserManager(BaseUserManager):
@@ -30,7 +69,6 @@ class UserManager(BaseUserManager):
         if not SignUpKey.objects.check_key(key):
             raise ValueError("認証キーが一致しません")
         extra_fields.setdefault("is_staff", False)
-        extra_fields.setdefault("is_superuser", False)
         extra_fields.setdefault("is_active", False)
         user = self._create_user(username, email, password, **extra_fields)
         user_activate_token = UserActivateToken.objects.create(
@@ -57,7 +95,7 @@ class UserManager(BaseUserManager):
         return self._create_user(username, email, password, **extra_fields)
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser):
     username_validator = UnicodeUsernameValidator()
 
     created_at = models.DateTimeField("作成日", default=timezone.now)
@@ -66,12 +104,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField("last name", max_length=150, blank=True)
     email = models.EmailField("email", unique=True)
     is_staff = models.BooleanField("管理者ステータス", default=False)
-    is_member = models.BooleanField("会員ステータス", default=False)
-    is_active = models.BooleanField("アカウントステータス", default=False)
+    is_active = models.BooleanField("有効", default=False)
+    add_group = models.BooleanField("グループ追加申請", default=False)
     groups = models.ManyToManyField(
-        Group,
-        verbose_name='Group',
+        "Group",
+        verbose_name='groups',
         blank=True,
+        through='UserGroup',
+        through_fields=('user', 'group'),
         help_text='Specific Groups for this user.',
         related_name="user_set",
         related_query_name="user",
@@ -85,6 +125,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = "ユーザ"
         verbose_name_plural = "ユーザ"
+
+    def __str__(self):
+        return "%s: %s" % (self.id, self.username)
 
     def clean(self):
         super().clean()
@@ -101,6 +144,18 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self):
         return self.username
 
+    def has_perm(self, perm, obj=None):
+        if self.is_active and self.is_staff:
+            return True
+
+        return False
+
+    def has_module_perms(self, app_label):
+        if self.is_active and self.is_staff:
+            return True
+
+        return False
+
 
 def user_activate_expire_date():
     return timezone.now() + timezone.timedelta(days=settings.USER_ACTIVATE_EXPIRED_DAYS)
@@ -108,16 +163,19 @@ def user_activate_expire_date():
 
 class UserActivateTokensManager(models.Manager):
     def activate_user_by_token(self, activate_token):
+        if not self.filter(token=activate_token, expired_at__gt=timezone.now()).exists():
+            raise ValueError("Token is not found......")
         user_activate_token = self.filter(token=activate_token, expired_at__gt=timezone.now()).first()
         if user_activate_token.is_used:
-            return {"error": "this token was used..."}
+            raise ValueError("this token was used...")
+        if user_activate_token.user.is_active:
+            raise ValueError('アカウントはすでに有効済みです')
         if hasattr(user_activate_token, 'user'):
             user = user_activate_token.user
             user.is_active = True
             user.save()
             user_activate_token.is_used = True
             user_activate_token.save()
-            return {"user": user, "error": ""}
 
 
 class UserActivateToken(models.Model):
@@ -132,6 +190,9 @@ class UserActivateToken(models.Model):
     class Meta:
         verbose_name = 'Activate用のToken'
         verbose_name_plural = "Activate用のToken"
+
+    def __str__(self):
+        return "%d[%s]: %s" % (self.id, self.user.username, self.token)
 
 
 def sign_up_key_expire_date():
@@ -172,23 +233,22 @@ class SignUpKey(models.Model):
         verbose_name = 'サインアップ用のKey'
         verbose_name_plural = "サインアップ用のKey"
 
-
-class CustomGroupManager(models.Manager):
-    def active_filter(self):
-        return self.filter(is_active=True)
+    def __str__(self):
+        return "%s: %s(%s)" % (self.id, self.key, self.comment)
 
 
-class CustomGroup(Group):
+class UserGroup(models.Model):
     created_at = models.DateTimeField("作成日", default=timezone.now)
-    is_active = models.BooleanField("アカウントステータス", default=False)
-    admin_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    comment = models.CharField("comment", max_length=250, default="", blank=True)
-
-    objects = CustomGroupManager()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    is_admin = models.BooleanField("管理者", default=False)
+    ldap_register = models.BooleanField("LDAP登録", default=False)
+    enable_ldap = models.BooleanField("LDAP有効", default=False)
 
     class Meta:
-        verbose_name = 'グループ'
-        verbose_name_plural = "グループ"
+        verbose_name = 'ユーザ・グループ'
+        verbose_name_plural = "ユーザ・グループ"
+        unique_together = ('user', 'group')
 
     def __str__(self):
-        return self.name
+        return "%s-%s" % (self.user.username, self.group.name)

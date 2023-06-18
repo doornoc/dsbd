@@ -46,17 +46,11 @@ class SignUpForm(forms.Form):
             field.widget.attrs['placeholder'] = field.label
 
     def create_user(self, key):
-        print(self)
-        try:
-            User.objects.create_user(
-                key,
-                username=self.cleaned_data["username"],
-                email=self.cleaned_data["email"],
-                password=self.cleaned_data["password"],
-                first_name=self.cleaned_data["first_name"],
-                last_name=self.cleaned_data["last_name"],
-            )
-        except ValueError as e:
-            print(e)
-            return e
-        return ""
+        User.objects.create_user(
+            key,
+            username=self.cleaned_data["username"],
+            email=self.cleaned_data["email"],
+            password=self.cleaned_data["password"],
+            first_name=self.cleaned_data["first_name"],
+            last_name=self.cleaned_data["last_name"],
+        )

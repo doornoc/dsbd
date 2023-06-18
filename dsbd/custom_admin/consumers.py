@@ -56,3 +56,20 @@ class AdminChatConsumer(ChatConsumer):
             "message": message,
             "is_admin": True
         })
+
+    async def broadcast_message(self, event):
+        time = event["time"]
+        user_id = int(event["user_id"])
+        username = event["username"]
+        group = int(event["group"])
+        message = event["message"]
+        is_admin = event["is_admin"]
+
+        await self.send(text_data=json.dumps({
+            "time": time,
+            "user_id": user_id,
+            "username": username,
+            "group": group,
+            "message": message,
+            "is_admin": is_admin
+        }))

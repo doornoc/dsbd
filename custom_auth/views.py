@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, redirect
 
 from custom_auth.form import GroupForm
 from custom_auth.models import UserGroup
@@ -86,8 +87,6 @@ def permission_group(request, group_id):
         if request.method == 'POST' and administrator and group.is_active:
             id = request.POST.get('id', 0)
             is_exists = False
-            print("ID", id)
-            print(request.POST)
             for permission_user in permission_all:
                 if permission_user.id == int(id):
                     is_exists = True
@@ -103,6 +102,7 @@ def permission_group(request, group_id):
                     elif "admin" in request.POST:
                         user_group.is_admin = True
                         user_group.save()
+                    return redirect('/group/permission/%d' % group_id)
                 except:
                     error = "アップデート処理でエラーが発生しました"
     except:

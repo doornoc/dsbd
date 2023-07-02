@@ -7,4 +7,5 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("ticket", views.ticket_list, name="ticket_list"),
     path("ticket/<int:ticket_id>/chat/", views.chat, name="chat"),
+    path("wireguard", views.wireguard_list, name="wireguard_list"),
 ]

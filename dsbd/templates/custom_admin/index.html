@@ -8,10 +8,15 @@
        aria-expanded="false">ユーザ一覧</a>
     <a class="btn btn-primary" href="/admin/custom_auth/group" role="button"
        aria-expanded="false">グループ一覧</a>
-    <a class="btn btn-primary" href="/admin/ticket/ticket" role="button"
+    <a class="btn btn-primary" href="/admin/notice/notice" role="button"
        aria-expanded="false">通知一覧</a>
     <a class="btn btn-primary" href="{% url 'custom_admin:ticket_list' %}" role="button"
        aria-expanded="false">チケット一覧</a>
     <br/>
+    <br/>
+    <a class="btn btn-primary" href="/admin/service/service" role="button"
+       aria-expanded="false">サービス一覧</a>
+    <a class="btn btn-primary" href="{% url 'custom_admin:wireguard_list' %}" role="button"
+       aria-expanded="false">Wireguard</a>
     <br/>
 {% endblock content %}

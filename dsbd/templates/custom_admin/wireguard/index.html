@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2 class="card-title">チケット一覧(管理者側)</h2>
+    <br/>
+    {#    <a class="btn btn-primary btn-sm " href="{% url 'ticket:add' %}" role="button" aria-expanded="false">チケット追加</a>#}
+    <br/>
+    <br/>
+    {% if servers %}
+        {% for e in servers %}
+            <div class="card">
+                <div class="card-header">
+                    ID: {{ e.id }} 作成日: {{ e.created_at }}
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ e.title }}</h5>
+                    {% autoescape off %}
+                        {{ e.body | linebreaks }}
+                    {% endautoescape %}
+                    <table class="table">
+                        <tr>
+                            <th scope="row" class="table-active">StartIP</th>
+                            <td colspan="2">{{ e.start_ip }}/{{ e.size }}</td>
+                            <th scope="row" class="table-active">GatewayIP</th>
+                            <td colspan="2">{{ e.gateway_ip }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="table-active">秘密鍵</th>
+                            <td colspan="2">{{ e.private_key }}</td>
+                            <th scope="row" class="table-active">公開鍵</th>
+                            <td colspan="2">{{ e.public_key }}</td>
+                        </tr>
+                    </table>
+                    <div class="container">
+                        <div class="row">
+                            <form method="post">
+                                {% csrf_token %}
+                                <a class="btn btn-primary btn-sm"
+                                   href="/admin/wireguard/server/{{ e.id }}/change">編集</a>
+                                <input type="text" value={{ e.id }} name="id" hidden>
+                                {% if e.is_active %}
+                                    <button type="submit" class="btn btn-primary btn-sm" name="register">再登録</button>
+                                    <button type="submit" class="btn btn-danger btn-sm" name="inactive">無効</button>
+                                {% else %}
+                                    <button type="submit" class="btn btn-primary btn-sm" name="active">有効</button>
+                                {% endif %}
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <span class="badge bg-secondary">Global IP: {{ e.global_ip }}</span>
+                    <span class="badge bg-secondary">Management IP: {{ e.mgmt_ip }}</span>
+                    {% if e.is_active %}<span class="badge bg-primary">有効</span>
+                    {% else %}<span class="badge bg-danger">無効</span>{% endif %}
+                </div>
+            </div>
+            <br/>
+        {% endfor %}
+        <nav aria-label="...">
+            <ul class="pagination">
+                {% if tickets.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="?{% url_replace request page=tickets.previous_page_number %}">前へ</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">前へ</span>
+                    </li>
+                {% endif %}
+                {% if tickets.paginator.num_pages > 10 %}
+                    {% if tickets.number < 6 %}
+                        {#    先頭 9 ページの表示      #}
+                        {% for pg in tickets.paginator.page_range %}
+                            {% if forloop.counter0 < 9 %}
+                                {% if tickets.number == pg %}
+                                    <li class="page-item active">
+                                        {% else %}
+                                    <li class="page-item">
+                                {% endif %}
+                            <a class="page-link" href="?{% url_replace request page=pg %}">{{ pg }}</a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                    {% elif tickets.number < tickets.paginator.num_pages|add:-4 %}
+                        {#    手前 4 ページ | 現在のページ | 続き 4 ページ      #}
+                        {% for pg in tickets.paginator.page_range %}
+                            {% if tickets.number|add:-5 < pg and pg < tickets.number|add:5 %}
+                                {% if tickets.number == pg %}
+                                    <li class="page-item active">
+                                        {% else %}
+                                    <li class="page-item">
+                                {% endif %}
+                            <a class="page-link" href="?{% url_replace request page=pg %}">{{ pg }}</a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        {#   最後 9 ページの表示   #}
+                        {% for pg in tickets.paginator.page_range %}
+                            {% if forloop.counter0 > tickets.paginator.num_pages|add:-10 %}
+                                {% if tickets.number == pg %}
+                                    <li class="page-item active">
+                                        {% else %}
+                                    <li class="page-item">
+                                {% endif %}
+                            <a class="page-link" href="?{% url_replace request page=pg %}">{{ pg }}</a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% else %}
+                    {% for pg in tickets.paginator.page_range %}
+                        {% if tickets.number == pg %}
+                            <li class="page-item active">
+                                {% else %}
+                            <li class="page-item">
+                        {% endif %}
+                    <a class="page-link" href="?{% url_replace request page=pg %}">{{ pg }}</a>
+                    </li>
+                    {% endfor %}
+                {% endif %}
+                {% if tickets.has_next %}
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="?{% url_replace request page=tickets.next_page_number %}">次へ</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">次へ</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% else %}
+        <p>チケットがありません</p>
+    {% endif %}
+{% endblock content %}

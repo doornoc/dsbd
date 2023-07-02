@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, InvalidPage, Paginator
 from django.shortcuts import render, redirect
 
+from dsbd.service.wireguard.api import wg_overwrite
+from dsbd.service.wireguard.models import Server as WireguardServer
 from dsbd.ticket.models import Ticket
 
 
@@ -50,3 +52,32 @@ def chat(request, ticket_id):
         return render(request, "ticket/chat_error.html", {})
     context = {"ticket": ticket, "chats": ticket.chat_set.order_by('created_at').all()}
     return render(request, "custom_admin/ticket/chat.html", context)
+
+
+@login_required
+@staff_member_required
+def wireguard_list(request):
+    wireguard_server_objects = WireguardServer.objects.all()
+    if request.method == 'POST':
+        id = request.POST.get('id', 0)
+        server = WireguardServer.objects.get(id=int(id))
+        if "inactive" in request.POST:
+            server.is_active = False
+            server.save()
+        elif "active" in request.POST:
+            server.is_active = True
+            server.save()
+        elif "register" in request.POST:
+            wg_overwrite(server)
+        return redirect('/admin/custom/wireguard')
+
+    paginator = Paginator(wireguard_server_objects, int(request.GET.get("per_page", "5")))
+    page = int(request.GET.get("page", "1"))
+    try:
+        servers = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        servers = paginator.page(paginator.num_pages)
+    context = {
+        "servers": servers,
+    }
+    return render(request, "custom_admin/wireguard/index.html", context)

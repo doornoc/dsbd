@@ -13,7 +13,7 @@ class ServiceManager(models.Manager):
 
         for group in groups:
             q.add(Q(group=group), Q.OR)
-        return self.filter(q)
+        return self.filter(q).prefetch_related('wireguard_service')
 
 
 class Service(models.Model):

@@ -42,3 +42,8 @@ def beta():
 @register.simple_tag
 def debug():
     return settings.DEBUG
+
+
+@register.simple_tag
+def array_to_str(data):
+    return ', '.join(data)

@@ -9,6 +9,8 @@ from django.urls import reverse_lazy
 from custom_auth.models import UserActivateToken, SignUpKey, User
 from dsbd.form import LoginForm, ForgetForm, NewSetPasswordForm, SignUpForm
 from dsbd.notice.models import Notice
+from dsbd.service.models import Service
+from dsbd.ticket.models import Ticket
 
 
 def sign_in(request):
@@ -97,13 +99,33 @@ def activate_user(request, activate_token):
 @login_required
 def index(request):
     notice_objects = Notice.objects.get_notice()
+    ticket_objects = Ticket.objects.get_ticket(user=request.user).filter(is_solved=False)
 
-    paginator = Paginator(notice_objects, int(request.GET.get("per_page", "5")))
-    page = int(request.GET.get("page", "1"))
+    notice_paginator = Paginator(notice_objects, int(request.GET.get("notice_per_page", "5")))
+    notice_page = int(request.GET.get("notice_page", "1"))
     try:
-        notices = paginator.page(page)
+        notices = notice_paginator.page(notice_page)
     except (EmptyPage, InvalidPage):
-        notices = paginator.page(paginator.num_pages)
+        notices = notice_paginator.page(notice_paginator.num_pages)
 
-    context = {"notices": notices}
+    ticket_paginator = Paginator(ticket_objects, int(request.GET.get("ticket_per_page", "3")))
+    ticket_page = int(request.GET.get("ticket_page", "1"))
+    try:
+        tickets = ticket_paginator.page(ticket_page)
+    except (EmptyPage, InvalidPage):
+        tickets = ticket_paginator.page(ticket_paginator.num_pages)
+
+    services = None
+
+    group_filter = request.user.groups.filter(is_active=True)
+    if group_filter.exists():
+        service_objects = Service.objects.get_service(groups=group_filter.all()).filter(is_active=True)
+        service_paginator = Paginator(service_objects, int(request.GET.get("ticket_per_page", "3")))
+        service_page = int(request.GET.get("ticket_page", "1"))
+        try:
+            services = service_paginator.page(service_page)
+        except (EmptyPage, InvalidPage):
+            services = service_paginator.page(service_paginator.num_pages)
+
+    context = {"notices": notices, "tickets": tickets, "services": services}
     return render(request, "menu.html", context)

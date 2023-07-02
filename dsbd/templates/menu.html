@@ -4,34 +4,242 @@
         <div class="card-body">
             <div class="card-group">
                 <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">This is a wider card with supporting text below as a natural lead-in to
-                            additional content. This content is a little bit longer.</p>
+                    <div class="card-header">
+                        Service情報
                     </div>
-                    <div class="card-footer">
-                        <small class="text-muted">Last updated 3 mins ago</small>
+                    <div class="card-body">
+                        {% if services %}
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Title</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for e in services %}
+                                    <tr>
+                                        <th scope="row">{{ e.id }}</th>
+                                        <td>
+                                            {{ e.type1|slice:":10" }}{% if e.type1|length > 10 %}...{% endif %}
+                                        </td>
+                                        <td>
+                                            {#                                            <a class="btn btn-primary btn-sm"#}
+                                            {#                                               href="{% url 'service:index' e.id %}">Chat</a>#}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <nav aria-label="...">
+                                <ul class="pagination pagination-sm">
+                                    {% if services.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                               href="?{% url_replace request service_page=services.previous_page_number %}">前へ</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link">前へ</span>
+                                        </li>
+                                    {% endif %}
+                                    {% if services.paginator.num_pages > 10 %}
+                                        {% if services.number < 6 %}
+                                            {#    先頭 9 ページの表示      #}
+                                            {% for pg in services.paginator.page_range %}
+                                                {% if forloop.counter0 < 9 %}
+                                                    {% if services.number == pg %}
+                                                        <li class="page-item active">
+                                                            {% else %}
+                                                        <li class="page-item">
+                                                    {% endif %}
+                                                <a class="page-link"
+                                                   href="?{% url_replace request service_page=pg %}">{{ pg }}</a>
+                                                </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% elif services.number < services.paginator.num_pages|add:-4 %}
+                                            {#    手前 4 ページ | 現在のページ | 続き 4 ページ      #}
+                                            {% for pg in services.paginator.page_range %}
+                                                {% if services.number|add:-5 < pg and pg < services.number|add:5 %}
+                                                    {% if services.number == pg %}
+                                                        <li class="page-item active">
+                                                            {% else %}
+                                                        <li class="page-item">
+                                                    {% endif %}
+                                                <a class="page-link"
+                                                   href="?{% url_replace request service_page=pg %}">{{ pg }}</a>
+                                                </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% else %}
+                                            {#   最後 9 ページの表示   #}
+                                            {% for pg in services.paginator.page_range %}
+                                                {% if forloop.counter0 > services.paginator.num_pages|add:-10 %}
+                                                    {% if services.number == pg %}
+                                                        <li class="page-item active">
+                                                            {% else %}
+                                                        <li class="page-item">
+                                                    {% endif %}
+                                                <a class="page-link"
+                                                   href="?{% url_replace request service_page=pg %}">{{ pg }}</a>
+                                                </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% else %}
+                                        {% for pg in services.paginator.page_range %}
+                                            {% if services.number == pg %}
+                                                <li class="page-item active">
+                                                    {% else %}
+                                                <li class="page-item">
+                                            {% endif %}
+                                        <a class="page-link"
+                                           href="?{% url_replace request service_page=pg %}">{{ pg }}</a>
+                                        </li>
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if services.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                               href="?{% url_replace request service_page=services.next_page_number %}">次へ</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link">次へ</span>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        {% else %}
+                            サービスがありません
+                        {% endif %}
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">This card has supporting text below as a natural lead-in to additional
-                            content.</p>
+                    <div class="card-header">
+                        Ticket情報
                     </div>
-                    <div class="card-footer">
-                        <small class="text-muted">Last updated 3 mins ago</small>
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Title</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for e in tickets %}
+                                <tr>
+                                    <th scope="row">{{ e.id }}</th>
+                                    <td>
+                                        {% if e.group %}
+                                            <span class="badge bg-secondary">グループチャット<br/> ({{ e.group.id }}: {{ e.group.name }})</span> {% else %}
+                                            <span class="badge bg-secondary">ユーザチャット</span>{% endif %}
+                                    </td>
+                                    <td>
+                                        {{ e.title|slice:":10" }}{% if e.title|length > 10 %}...{% endif %}
+                                    </td>
+                                    <td>
+                                        <a class="btn btn-primary btn-sm" href="{% url 'ticket:chat' e.id %}">Chat</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        <nav aria-label="...">
+                            <ul class="pagination pagination-sm">
+                                {% if tickets.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link"
+                                           href="?{% url_replace request ticket_page=tickets.previous_page_number %}">前へ</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">前へ</span>
+                                    </li>
+                                {% endif %}
+                                {% if tickets.paginator.num_pages > 10 %}
+                                    {% if tickets.number < 6 %}
+                                        {#    先頭 9 ページの表示      #}
+                                        {% for pg in tickets.paginator.page_range %}
+                                            {% if forloop.counter0 < 9 %}
+                                                {% if tickets.number == pg %}
+                                                    <li class="page-item active">
+                                                        {% else %}
+                                                    <li class="page-item">
+                                                {% endif %}
+                                            <a class="page-link"
+                                               href="?{% url_replace request ticket_page=pg %}">{{ pg }}</a>
+                                            </li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% elif tickets.number < tickets.paginator.num_pages|add:-4 %}
+                                        {#    手前 4 ページ | 現在のページ | 続き 4 ページ      #}
+                                        {% for pg in tickets.paginator.page_range %}
+                                            {% if tickets.number|add:-5 < pg and pg < tickets.number|add:5 %}
+                                                {% if tickets.number == pg %}
+                                                    <li class="page-item active">
+                                                        {% else %}
+                                                    <li class="page-item">
+                                                {% endif %}
+                                            <a class="page-link"
+                                               href="?{% url_replace request ticket_page=pg %}">{{ pg }}</a>
+                                            </li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        {#   最後 9 ページの表示   #}
+                                        {% for pg in tickets.paginator.page_range %}
+                                            {% if forloop.counter0 > tickets.paginator.num_pages|add:-10 %}
+                                                {% if tickets.number == pg %}
+                                                    <li class="page-item active">
+                                                        {% else %}
+                                                    <li class="page-item">
+                                                {% endif %}
+                                            <a class="page-link"
+                                               href="?{% url_replace request ticket_page=pg %}">{{ pg }}</a>
+                                            </li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% else %}
+                                    {% for pg in tickets.paginator.page_range %}
+                                        {% if tickets.number == pg %}
+                                            <li class="page-item active">
+                                                {% else %}
+                                            <li class="page-item">
+                                        {% endif %}
+                                    <a class="page-link" href="?{% url_replace request ticket_page=pg %}">{{ pg }}</a>
+                                    </li>
+                                    {% endfor %}
+                                {% endif %}
+                                {% if tickets.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link"
+                                           href="?{% url_replace request ticket_page=tickets.next_page_number %}">次へ</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">次へ</span>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">This is a wider card with supporting text below as a natural lead-in to
-                            additional content. This card has even longer content than the first to show that equal
-                            height action.</p>
+                    <div class="card-header">
+                        課金情報・その他
                     </div>
-                    <div class="card-footer">
-                        <small class="text-muted">Last updated 3 mins ago</small>
+                    <div class="card-body">
+                        <h5 class="card-title">課金情報</h5>
+                        <p class="card-text">未実装</p>
+                        <h5 class="card-title">その他</h5>
+                        <p class="card-text">未実装</p>
                     </div>
                 </div>
             </div>
@@ -65,7 +273,7 @@
                         {% if notices.has_previous %}
                             <li class="page-item">
                                 <a class="page-link"
-                                   href="?{% url_replace request page=notices.previous_page_number %}">前へ</a>
+                                   href="?{% url_replace request notice_page=notices.previous_page_number %}">前へ</a>
                             </li>
                         {% else %}
                             <li class="page-item disabled">
@@ -82,7 +290,7 @@
                                                 {% else %}
                                             <li class="page-item">
                                         {% endif %}
-                                    <a class="page-link" href="?{% url_replace request page=pg %}">{{ pg }}</a>
+                                    <a class="page-link" href="?{% url_replace request notice_page=pg %}">{{ pg }}</a>
                                     </li>
                                     {% endif %}
                                 {% endfor %}
@@ -95,7 +303,7 @@
                                                 {% else %}
                                             <li class="page-item">
                                         {% endif %}
-                                    <a class="page-link" href="?{% url_replace request page=pg %}">{{ pg }}</a>
+                                    <a class="page-link" href="?{% url_replace request notice_page=pg %}">{{ pg }}</a>
                                     </li>
                                     {% endif %}
                                 {% endfor %}
@@ -108,7 +316,7 @@
                                                 {% else %}
                                             <li class="page-item">
                                         {% endif %}
-                                    <a class="page-link" href="?{% url_replace request page=pg %}">{{ pg }}</a>
+                                    <a class="page-link" href="?{% url_replace request notice_page=pg %}">{{ pg }}</a>
                                     </li>
                                     {% endif %}
                                 {% endfor %}
@@ -120,14 +328,14 @@
                                         {% else %}
                                     <li class="page-item">
                                 {% endif %}
-                            <a class="page-link" href="?{% url_replace request page=pg %}">{{ pg }}</a>
+                            <a class="page-link" href="?{% url_replace request notice_page=pg %}">{{ pg }}</a>
                             </li>
                             {% endfor %}
                         {% endif %}
                         {% if notices.has_next %}
                             <li class="page-item">
                                 <a class="page-link"
-                                   href="?{% url_replace request page=notices.next_page_number %}">次へ</a>
+                                   href="?{% url_replace request notice_page=notices.next_page_number %}">次へ</a>
                             </li>
                         {% else %}
                             <li class="page-item disabled">

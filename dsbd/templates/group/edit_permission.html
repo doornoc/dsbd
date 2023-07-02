@@ -46,7 +46,7 @@
                 <tbody>
                 {% for e in permission %}
                     <tr>
-                        <th scope="row">1</th>
+                        <th scope="row">{{ e.id }}</th>
                         <td>{{ e.created_at }}</td>
                         <td>{{ e.user.id }}: {{ e.user.username }}</td>
                         <td>{{ e.group.id }}: {{ e.group.name }}</td>

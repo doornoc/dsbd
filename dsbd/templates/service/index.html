@@ -6,6 +6,8 @@
         {% for e in services %}
             <div class="card">
                 <div class="card-header">
+                    {% if e.is_active %}<span class="badge bg-primary">有効</span>
+                    {% else %}<span class="badge bg-danger">無効</span>{% endif %}
                     {% time_to_str e.start_at %} → {% time_to_str e.end_at %}
                 </div>
                 <div class="card-body">
@@ -13,6 +15,50 @@
                     {% autoescape off %}
                         {% markdown e.content %}
                     {% endautoescape %}
+                    {% if e.wireguard_service %}
+                        <table class="table">
+                            <tr>
+                                <th scope="row" class="table-active">割当IPv4</th>
+                                <td colspan="2">{{ e.wireguard_service.ipv4 }}</td>
+                                <th scope="row" class="table-active">割当IPv6</th>
+                                <td colspan="2">{{ e.wireguard_service.ipv6 }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="table-active">EndPoint</th>
+                                <td colspan="2">{{ e.wireguard_service.server.global_ip }}:{{ e.wireguard_service.server.global_port }}</td>
+                                <th scope="row" class="table-active">---</th>
+                                <td colspan="2">---</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="table-active">Active</th>
+                                <td colspan="2">{% if e.wireguard_service.is_active %}<span class="badge bg-primary">有効</span>
+                                {% else %}<span class="badge bg-danger">無効</span>{% endif %}</td>
+                                <th scope="row" class="table-active">サーバ状態</th>
+                                <td colspan="2">{% if e.wireguard_service.server.is_active %}<span class="badge bg-success">動作中</span>
+                                {% else %}<span class="badge bg-danger">停止中</span>{% endif %}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="table-active">Client公開鍵</th>
+                                <td colspan="2">{{ e.wireguard_service.public_key }}</td>
+                                <th scope="row" class="table-active">Server公開鍵</th>
+                                <td colspan="2">{{ e.wireguard_service.server.public_key }}</td>
+                            </tr>
+                        </table>
+                        <h6>Wireguardの設定例↓</h6>
+<pre><code>
+[Interface]
+{% if e.wireguard_service.ipv4 %}Address = {{ e.wireguard_service.ipv4 }}/{{ e.wireguard_service.server.size }}{% endif %}
+{% if e.wireguard_service.ipv6 %}Address = {{ e.wireguard_service.ipv6 }}/64{% endif %}
+PrivateKey = [Your Private Key]
+DNS = 1.1.1.1
+MTU = 1420
+
+[Peer]
+PublicKey = {{ e.wireguard_service.server.public_key }}
+AllowedIPs = 0.0.0.0/0
+Endpoint = {{ e.wireguard_service.server.global_ip }}:{{ e.wireguard_service.server.global_port }}
+</code></pre>
+                    {% endif %}
                 </div>
             </div>
             <br/>

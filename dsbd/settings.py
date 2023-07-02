@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'dsbd.notice',
     'dsbd.service',
+    'dsbd.service.wireguard',
     'dsbd.ticket',
     'dsbd.custom_admin'
 ]

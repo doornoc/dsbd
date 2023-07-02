@@ -21,7 +21,7 @@ class Ticket(admin.ModelAdmin):
 class Template(admin.ModelAdmin):
     readonly_fields = ['created_at']
     fieldsets = (
-        (None, {"fields": ("created_at", "is_active", 'comment')}),
+        (None, {"fields": ("id", "created_at", "is_active", 'comment')}),
         ('info', {'fields': ('type1', 'type2', 'title', 'body')}),
     )
     list_display = (

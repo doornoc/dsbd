@@ -11,6 +11,7 @@ class TemplateManager(models.Manager):
 
 
 class Template(models.Model):
+    id = models.IntegerField("ID", auto_created=True, primary_key=True, editable=True)
     created_at = models.DateTimeField("作成日", auto_now_add=True, db_index=True)
     is_active = models.BooleanField("有効", default=True)
     type1 = models.CharField("type1", max_length=200)

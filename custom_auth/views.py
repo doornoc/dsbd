@@ -1,5 +1,8 @@
+import time
+
+import stripe
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 
 from custom_auth.form import GroupForm
@@ -8,14 +11,51 @@ from custom_auth.models import UserGroup
 
 @login_required
 def get_groups(request):
+    data = []
+    for group in request.user.groups.all():
+        data.append({
+            "group": group,
+            "administrator": group.usergroup_set.filter(user=request.user, is_admin=True).exists()
+        })
+
+    if request.method == "POST":
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        id = request.POST.get("id", "")
+        group_id = request.POST.get("group_id", 0)
+        group = request.user.groups.get(id=group_id)
+        administrator = group.usergroup_set.filter(user=request.user, is_admin=True).exists()
+        if administrator and id == "create_stripe_customer":
+            name = "[GROUP] %d: %s" % (int(group_id), group.name,)
+            if not group.stripe_customer_id:
+                cus = stripe.Customer.create(
+                    name=name,
+                    description="doornoc_service",
+                    metadata={
+                        'id': "doornoc_service",
+                        'user_id': request.user.id,
+                        'group_id': group_id
+                    }
+                )
+                group.stripe_customer_id = cus.id
+                group.save()
+                redirect_url = "/group/%d/payment" % (int(group_id),)
+                return redirect(redirect_url)
+        elif administrator and id == "getting_portal":
+            if group.stripe_customer_id:
+                session = stripe.billing_portal.Session.create(
+                    customer=group.stripe_customer_id,
+                    return_url=settings.DOMAIN_URL + "/group"
+                )
+                return redirect(session.url, code=303)
+
     context = {
-        "groups": request.user.groups.all()
+        "data": data
     }
     return render(request, "group/index.html", context)
 
 
 @login_required
-def add_group(request):
+def group_add(request):
     error = None
     if request.method == 'POST':
         form = GroupForm(request.POST)
@@ -37,7 +77,7 @@ def add_group(request):
 
 
 @login_required
-def edit_group(request, group_id):
+def group_edit(request, group_id):
     error = None
     administrator = False
     try:
@@ -76,7 +116,7 @@ def edit_group(request, group_id):
 
 
 @login_required
-def permission_group(request, group_id):
+def group_permission(request, group_id):
     error = None
     administrator = False
     permission_all = False
@@ -115,3 +155,90 @@ def permission_group(request, group_id):
         "error": error
     }
     return render(request, "group/edit_permission.html", context)
+
+
+@login_required
+def group_payment(request, group_id):
+    error = None
+    administrator = False
+    permission_all = False
+    data = []
+    try:
+        group = request.user.groups.get(id=group_id)
+        permission_all = group.usergroup_set.all()
+        administrator = group.usergroup_set.filter(user=request.user, is_admin=True).exists()
+
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        products = stripe.Product.search(
+            query="active:'true' AND metadata['id']:'doornoc_service'",
+        )
+        if administrator:
+            for product in products:
+                prices = stripe.Price.search(
+                    query="active:'true' AND product:'%s'" % (product.id,),
+                )
+                tmp_prices = []
+                idx_prices = 0
+                for price in prices:
+                    tmp_price = [{
+                        "id": price.id,
+                        "interval": price.recurring.interval,
+                        "amount": price.unit_amount,
+                        "description": price.nickname
+                    }]
+                    if idx_prices == 0:
+                        tmp_prices = tmp_price
+                    else:
+                        if price.recurring.interval == "year":
+                            tmp_prices += tmp_price
+                        elif price.recurring.interval == "month":
+                            tmp_prices = tmp_price + tmp_prices
+                    idx_prices += 1
+                data.append({
+                    "name": product.name,
+                    "prices": tmp_prices,
+                    "number": int(product.metadata.tag)
+                })
+            data.sort(key=lambda x: x['number'])
+    except:
+        group = None
+    if administrator and request.method == "POST":
+        id = request.POST.get("price_id", "")
+        is_exists = False
+        for one_data in data:
+            for price in one_data["prices"]:
+                if price["id"] == id:
+                    is_exists = True
+                    break
+        url = settings.DOMAIN_URL + "/group"
+        if is_exists and group.stripe_customer_id and not group.stripe_subscription_id:
+            session = stripe.checkout.Session.create(
+                mode="subscription",
+                line_items=[
+                    {
+                        "price": id,
+                        "quantity": 1,
+                    },
+                ],
+                customer=group.stripe_customer_id,
+                success_url=url,
+                cancel_url=url,
+                expires_at=int(time.time() + (60 * 30)),
+                subscription_data={
+                    "metadata": {
+                        "type": "doornoc_membership",
+                        "group_id": group_id,
+                        "log": "[" + str(group.id) + "] " + group.name,
+                    }
+                }
+            )
+            return redirect(session.url, code=303)
+
+    context = {
+        "data": data,
+        "group": group,
+        "permission": permission_all,
+        "administrator": administrator,
+        "error": error
+    }
+    return render(request, "group/payment.html", context)

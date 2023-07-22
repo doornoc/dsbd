@@ -51,7 +51,7 @@ class GroupForm(forms.Form):
 
         try:
             user = User.objects.get(id=user_id)
-            user.add_group = False
+            user.group_add = False
             user.save()
         except:
             raise ValueError("ユーザ情報の変更に失敗しました")

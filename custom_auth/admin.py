@@ -18,6 +18,7 @@ class AdminUser(UserAdmin):
         ('Permissions', {'fields': ('is_active', 'is_staff',)}),
         ('Important dates', {'fields': ('last_login', 'created_at')}),
         ('Options', {'fields': ('add_group',)}),
+        ('Charge', {'fields': ('is_charge', 'expired_at', 'stripe_customer_id', 'stripe_subscription_id')}),
     )
     list_display = ('username', 'email', 'is_staff',)
     list_filter = ("is_staff", "is_active",)
@@ -36,6 +37,7 @@ class AdminGroup(ModelAdmin):
         (None, {'fields': ('name', "is_active", "comment")}),
         ('Personal info', {'fields': ('zipcode', 'address', 'address_en', 'email', 'phone')}),
         ('Important dates', {'fields': ('created_at',)}),
+        ('Charge', {'fields': ('is_charge', 'expired_at', 'stripe_customer_id', 'stripe_subscription_id')}),
     )
     list_display = ('name', "is_active", "comment")
     search_fields = ('name', "is_active", "comment")

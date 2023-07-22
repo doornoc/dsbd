@@ -237,9 +237,35 @@
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">課金情報</h5>
-                        <p class="card-text">未実装</p>
-                        <h5 class="card-title">その他</h5>
-                        <p class="card-text">未実装</p>
+                        {% if request.user.is_charge %}
+                            {% if request.user.expired_at %}
+                                <p class="card-text">課金情報: {{ request.user.expired_at }}まで</p>
+                            {% else %}
+                                <p class="card-text">会費未徴収</p>
+                            {% endif %}
+                            <br/>
+                            <form method="post">
+                                {% csrf_token %}
+                                {% if request.user.is_charge and request.user.stripe_customer_id and not request.user.stripe_subscription_id %}
+                                    <a class="btn btn-primary btn-sm" href="{% url 'payment' %}">会費のお支払いはこちらから</a>
+                                {% endif %}
+                                {% if not request.user.stripe_customer_id %}
+                                    <button type="submit" name="id" value="create_stripe_customer"
+                                            class="btn btn-primary btn-sm">会費のお支払いはこちらから
+                                    </button>
+                                {% endif %}
+                                {% if request.user.is_charge and request.user.stripe_customer_id %}
+                                    <button type="submit" name="id" value="getting_portal"
+                                            class="btn btn-primary btn-sm">プランの変更・キャンセル
+                                    </button>
+                                {% endif %}
+                            </form>
+                        {% else %}
+                            <p class="card-text">課金ステータス無効</p>
+                        {% endif %}
+                        <br/>
+                        <br/>
+                        <a class="btn btn-primary btn-sm" href="{% url 'get_groups' %}">Group課金情報</a>
                     </div>
                 </div>
             </div>

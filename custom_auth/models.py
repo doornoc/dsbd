@@ -33,6 +33,10 @@ class Group(models.Model):
     created_at = models.DateTimeField("作成日", default=timezone.now)
     is_active = models.BooleanField("有効", default=False)
     comment = models.CharField("comment", max_length=250, default="", blank=True)
+    is_charge = models.BooleanField("課金", default=False)
+    expired_at = models.DateTimeField("有効期限", blank=True, null=True)
+    stripe_customer_id = models.CharField("Stripe(CusID)", max_length=200, blank=True, null=True)
+    stripe_subscription_id = models.CharField("Stripe(SubID)", max_length=200, blank=True, null=True)
     zipcode = models.CharField("郵便番号", max_length=10, default="")
     address = models.CharField("住所", max_length=250, default="")
     address_en = models.CharField("住所(English)", max_length=250, default="")
@@ -105,6 +109,10 @@ class User(AbstractBaseUser):
     email = models.EmailField("email", unique=True)
     is_staff = models.BooleanField("管理者ステータス", default=False)
     is_active = models.BooleanField("有効", default=False)
+    is_charge = models.BooleanField("課金", default=False)
+    expired_at = models.DateTimeField("有効期限", blank=True, null=True)
+    stripe_customer_id = models.CharField("Stripe(CusID)", max_length=200, blank=True, null=True)
+    stripe_subscription_id = models.CharField("Stripe(SubID)", max_length=200, blank=True, null=True)
     add_group = models.BooleanField("グループ追加申請", default=False)
     groups = models.ManyToManyField(
         "Group",

@@ -24,6 +24,7 @@ from custom_auth import views as custom_auth_views
 
 urlpatterns = [
     path("", views.index, name="index"),
+    path("payment/", views.payment, name="payment"),
     path("sign_in/", views.sign_in, name="sign_in"),
     path("sign_out/", views.sign_out, name="sign_out"),
     path("sign_up/", views.sign_up, name="sign_up"),
@@ -34,10 +35,12 @@ urlpatterns = [
     path('activate/<uuid:activate_token>/', views.activate_user, name='activate_user'),
     path("service/", include("dsbd.service.urls")),
     path("ticket/", include("dsbd.ticket.urls")),
+    path("stripe_webhook/", views.stripe_webhook, name="webhook"),
     path("group/", custom_auth_views.get_groups, name="get_groups"),
-    path("group/add/", custom_auth_views.add_group, name="add_group"),
-    path("group/edit/<int:group_id>", custom_auth_views.edit_group, name="edit_group"),
-    path("group/permission/<int:group_id>", custom_auth_views.permission_group, name="permission_group"),
+    path("group/add/", custom_auth_views.group_add, name="add_group"),
+    path("group/edit/<int:group_id>", custom_auth_views.group_edit, name="edit_group"),
+    path("group/permission/<int:group_id>", custom_auth_views.group_permission, name="permission_group"),
+    path("group/<int:group_id>/payment", custom_auth_views.group_payment, name="group_payment"),
     path('admin/custom/', include("dsbd.custom_admin.urls")),
     path('admin/', admin.site.urls),
 ]

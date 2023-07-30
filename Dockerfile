@@ -13,12 +13,12 @@ WORKDIR /opt/app
 RUN pip install gunicorn daphne
 
 ENV PYTHONPATH=/opt/app/
-ADD Pipfile /opt/app/
-ADD Pipfile.lock /opt/app/
-RUN pipenv install --system
+ADD requirements.txt /opt/app/requirements.txt
+RUN pip install -r requirements.txt
 
 ADD manage.py /opt/app/
 ADD dsbd/ /opt/app/dsbd/
+ADD custom_auth/ /opt/app/custom_auth/
 
 
 # NGINX

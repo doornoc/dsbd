@@ -22,15 +22,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-4$6)p#4&_5j$15ip+0-mq+ji@wy%s2i^y)6*pa#tw4k3o8iho7'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-4$6)p#4&_5j$15ip+0-mq+ji@wy%s2i^y)6*pa#tw4k3o8iho7')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', False) == True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(' ')
 
-SITE_TITLE = "doornoc Dashboard"
-SITE_HEADER = "doornoc Dashboard"
+SITE_TITLE = os.environ.get('ALLOWED_HOSTS', 'doornoc Dashboard')
+SITE_HEADER = os.environ.get('ALLOWED_HOSTS', 'doornoc Dashboard')
 
 # Application definition
 
@@ -93,20 +93,31 @@ ASGI_APPLICATION = 'dsbd.asgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.environ.get('DATABASE_NAME', 'dsbd'),
+        "USER": os.environ.get('DATABASE_USER', 'dsbd'),
+        "PASSWORD": os.environ.get('DATABASE_PASSWORD', ''),
+        "HOST": os.environ.get('DATABASE_HOST', 'localhost'),
+        "PORT": os.environ.get('DATABASE_PORT', 3306),
+        "OPTIONS": {
+            "charset": "utf8mb4",
+        },
     }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
 }
 
 # E-Mail
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'ホスト情報'
-EMAIL_PORT = 'ポート情報'
-DEFAULT_FROM_EMAIL = 'デフォルト送信元'
-EMAIL_HOST_USER = 'ユーザー'
-EMAIL_HOST_PASSWORD = 'パスワード'
-EMAIL_USE_TLS = False
+EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
+EMAIL_PORT = os.environ.get('EMAIL_PORT', 587)
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', '')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', False) == True
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -170,17 +181,15 @@ if DEBUG:
 LOGIN_URL = "sign_in"
 LOGIN_REDIRECT_URL = "/"
 
-DOMAIN_URL = "http://localhost:8000"
+DOMAIN_URL = os.environ.get('DOMAIN_URL', 'http://localhost:8000')
 
-USER_ACTIVATE_EXPIRED_DAYS = 7
-SIGN_UP_EXPIRED_DAYS = 7
+USER_ACTIVATE_EXPIRED_DAYS = os.environ.get('USER_ACTIVATE_EXPIRED_DAYS', 7)
+SIGN_UP_EXPIRED_DAYS = os.environ.get('SIGN_UP_EXPIRED_DAYS', 7)
 
 ## Stripe
-STRIPE_PRIVATE_KEY = ""
-STRIPE_SECRET_KEY = ""
-STRIPE_WEBHOOK_SECRET_KEY = ""
-STRIPE_CORPORATE_PROD_ID = "prod_OCD21z69EXhBpJ"
-STRIPE_SERVICE_PROD_ID = ["prod_OCD5cfO637DHpR", "prod_OETFIAHCzebxP9", "prod_OETGk3fdfwfuCd"]
+STRIPE_PRIVATE_KEY = os.environ.get('STRIPE_PRIVATE_KEY', '')
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
+STRIPE_WEBHOOK_SECRET_KEY = os.environ.get('STRIPE_WEBHOOK_SECRET_KEY', '')
 
 ## Slack
-SLACK_WEBHOOK_LOG = ""
+SLACK_WEBHOOK_LOG = os.environ.get('SLACK_WEBHOOK_LOG', '')

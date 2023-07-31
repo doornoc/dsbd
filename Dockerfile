@@ -24,10 +24,10 @@ ADD custom_auth/ /opt/app/custom_auth/
 # NGINX
 RUN python manage.py collectstatic --noinput
 RUN ln -s /opt/app/static /var/www/html/static
-ADD files/nginx.conf /etc/nginx/nginx.conf
 ADD files/default.conf /etc/nginx/sites-enabled/default
 
-EXPOSE 80
+#EXPOSE 80
+EXPOSE 8009
 
 ADD files/entrypoint.sh /opt/app/
 CMD ["bash", "-xe", "/opt/app/entrypoint.sh"]

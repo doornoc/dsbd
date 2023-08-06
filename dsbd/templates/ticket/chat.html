@@ -211,17 +211,15 @@
             {% autoescape off %}
                 {{ ticket.body | linebreaks }}
             {% endautoescape %}
-            {% if ticket.solved %}
+            {% if ticket.is_solved %}
                 <form method="post">
                     {% csrf_token %}
-                    <input type="text" value="solved" name="id" hidden>
-                    <button type="button" class="btn btn-danger btn-sm">未解決</button>
+                    <button type="submit" class="btn btn-danger btn-sm" name="no_solved">未解決</button>
                 </form>
             {% else %}
                 <form method="post">
                     {% csrf_token %}
-                    <input type="text" value="no_solved" name="id" hidden>
-                    <button type="button" class="btn btn-primary btn-sm">解決済み</button>
+                    <button type="submit" class="btn btn-primary btn-sm" name="solved">解決済み</button>
                 </form>
             {% endif %}
         </div>

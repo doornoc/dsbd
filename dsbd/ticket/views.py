@@ -82,6 +82,16 @@ def ticket_add(request):
 @login_required
 def chat(request, ticket_id):
     ticket = Ticket.objects.get_one_ticket(ticket_id, request.user)
+
+    if request.method == 'POST':
+        if "no_solved" in request.POST:
+            ticket.is_solved = False
+            ticket.save()
+        elif "solved" in request.POST:
+            ticket.is_solved = True
+            ticket.save()
+        return redirect('/ticket/' + str(ticket_id) + '/chat')
+
     if not ticket:
         return render(request, "ticket/chat_error.html", {})
     context = {"ticket": ticket, "chats": ticket.chat_set.order_by('created_at').all()}

@@ -14,7 +14,7 @@ def wg_create(server, service):
     requests.post(url, data=json.dumps({
         "public_key": service.public_key,
         "allowed_ips": ips
-    }))
+    }), headers={'Content-Type': 'application/json'})
 
 
 def wg_update(server, old_public_key, service):
@@ -29,13 +29,13 @@ def wg_update(server, old_public_key, service):
         "client": {
             "public_key": service.public_key,
             "allowed_ips": ips
-        }
-    }))
+        },
+    }), headers={'Content-Type': 'application/json'})
 
 
 def wg_delete(server, public_key):
     url = 'http://%s:%d/api/v1/peer' % (server.mgmt_ip, server.mgmt_port)
-    requests.delete(url, data=json.dumps({"public_key": public_key}))
+    requests.delete(url, data=json.dumps({"public_key": public_key}), headers={'Content-Type': 'application/json'})
 
 
 def wg_all_delete(server):
@@ -59,4 +59,4 @@ def wg_overwrite(server):
             "public_key": service.public_key,
             "allowed_ips": ips
         })
-    requests.put(url, data=json.dumps({"clients": clients}))
+    requests.put(url, data=json.dumps({"clients": clients}), headers={'Content-Type': 'application/json'})

@@ -62,3 +62,9 @@ def wg_overwrite(server):
             "allowed_ips": ips
         })
     requests.put(url, data=json.dumps({"clients": clients}), headers={'Content-Type': 'application/json'})
+
+
+def wg_get(server):
+    url = 'http://%s:%d/api/v1/peer' % (server.mgmt_ip, server.mgmt_port)
+    res = requests.get(url, headers={'Content-Type': 'application/json'})
+    return json.dumps(res.text, indent=2)

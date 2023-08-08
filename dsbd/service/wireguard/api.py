@@ -1,6 +1,8 @@
 import requests
 import json
 
+from django.shortcuts import redirect
+
 from dsbd.service.wireguard.models import Service
 
 
@@ -8,9 +10,9 @@ def wg_create(server, service):
     url = 'http://%s:%d/api/v1/peer' % (server.mgmt_ip, server.mgmt_port)
     ips = []
     if service.ipv4:
-        ips.append(service.ipv4)
+        ips.append(service.ipv4 + '/32')
     if service.ipv6:
-        ips.append(service.ipv6)
+        ips.append(service.ipv6 + '/128')
     requests.post(url, data=json.dumps({
         "public_key": service.public_key,
         "allowed_ips": ips
@@ -21,9 +23,9 @@ def wg_update(server, old_public_key, service):
     url = 'http://%s:%d/api/v1/peer' % (server.mgmt_ip, server.mgmt_port)
     ips = []
     if service.ipv4:
-        ips.append(service.ipv4)
+        ips.append(service.ipv4 + '/32')
     if service.ipv6:
-        ips.append(service.ipv6)
+        ips.append(service.ipv6 + '/128')
     requests.put(url, data=json.dumps({
         "old_public_key": old_public_key,
         "client": {
@@ -52,9 +54,9 @@ def wg_overwrite(server):
         if not service.ipv4 and not service.ipv6:
             continue
         if service.ipv4:
-            ips.append(service.ipv4)
+            ips.append(service.ipv4 + '/32')
         if service.ipv6:
-            ips.append(service.ipv6)
+            ips.append(service.ipv6 + '/128')
         clients.append({
             "public_key": service.public_key,
             "allowed_ips": ips

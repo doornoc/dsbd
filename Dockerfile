@@ -3,7 +3,9 @@ FROM python:3.11.4 AS app
 RUN pip install --upgrade pip && pip install pipenv
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    ca-certificates nginx xmlsec1 libxmlsec1-dev \
+    ca-certificates nginx python3-dev xmlsec1 libxmlsec1-dev \
+    libldap2-dev libsasl2-dev slapd ldap-utils tox \
+    lcov valgrind \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

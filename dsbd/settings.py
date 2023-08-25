@@ -9,12 +9,24 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+from importlib import import_module
 from pathlib import Path
 import os
 
+import ldap
+from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 from dsbd.templatetags import extra
+
+
+def _import_ldap_group_type(group_type_name):
+    mod = import_module('django_auth_ldap.config')
+    try:
+        return getattr(mod, group_type_name)()
+    except:
+        return None
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -44,7 +56,18 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'custom_auth',
+    'django_otp',
+    'django_otp.plugins.otp_static',
+    'django_otp.plugins.otp_totp',
+    'django_otp.plugins.otp_email',
+    'otp_yubikey',
+    'two_factor',
+    'two_factor.plugins.phonenumber',
+    'two_factor.plugins.email',
+    'two_factor.plugins.yubikey',
+    'two_factor.plugins.webauthn',
     'widget_tweaks',
+    'bootstrapform',
     'dsbd.notice',
     'dsbd.service',
     'dsbd.service.wireguard',
@@ -60,6 +83,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_otp.middleware.OTPMiddleware'
+]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'django_auth_ldap.backend.LDAPBackend',
 ]
 
 ROOT_URLCONF = 'dsbd.urls'
@@ -179,11 +208,14 @@ if DEBUG:
     INSTALLED_APPS.append('debug_toolbar')
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
 
-LOGIN_URL = "sign_in"
-LOGIN_REDIRECT_URL = "/"
+# LOGIN_URL = "sign_in"
+# LOGIN_REDIRECT_URL = "/"
+LOGIN_URL = 'two_factor:login'
+LOGIN_REDIRECT_URL = 'two_factor:profile'
 
 DOMAIN_URL = os.environ.get('DOMAIN_URL', 'http://localhost:8000')
 
+USER_LOGIN_VERIFY_EMAIL_EXPIRED_HOURS = os.environ.get('USER_LOGIN_VERIFY_EMAIL_EXPIRED_HOURS', 1)
 USER_ACTIVATE_EXPIRED_DAYS = os.environ.get('USER_ACTIVATE_EXPIRED_DAYS', 7)
 SIGN_UP_EXPIRED_DAYS = os.environ.get('SIGN_UP_EXPIRED_DAYS', 7)
 
@@ -194,3 +226,34 @@ STRIPE_WEBHOOK_SECRET_KEY = os.environ.get('STRIPE_WEBHOOK_SECRET_KEY', '')
 
 ## Slack
 SLACK_WEBHOOK_LOG = os.environ.get('SLACK_WEBHOOK_LOG', '')
+
+TWO_FACTOR_WEBAUTHN_RP_NAME = 'doornoc_dsbd'
+
+## LDAP
+AUTH_LDAP_SERVER_URI = os.environ.get('AUTH_LDAP_SERVER_URI', '')
+AUTH_LDAP_BIND_DN = os.environ.get('AUTH_LDAP_BIND_DN', '')
+AUTH_LDAP_BIND_PASSWORD = os.environ.get('AUTH_LDAP_BIND_PASSWORD', '')
+AUTH_LDAP_USER_SEARCH = LDAPSearch(
+    os.environ.get('AUTH_LDAP_USER_SEARCH_BASE_DN', ''),
+    ldap.SCOPE_SUBTREE,
+    "(uid=%(user)s)"
+)
+AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
+    os.environ.get('AUTH_LDAP_GROUP_SEARCH_BASE_DN', ''),
+    ldap.SCOPE_SUBTREE,
+    "(objectClass=groupOfNames)",
+)
+# AUTH_LDAP_GROUP_TYPE = GroupOfNamesType(name_attr="cn")
+# AUTH_LDAP_FIND_GROUP_PERMS = True
+AUTH_LDAP_GROUP_TYPE = _import_ldap_group_type(os.environ.get('AUTH_LDAP_GROUP_TYPE', 'PosixGroupType'))
+
+AUTH_LDAP_USER_ATTR_MAP = {
+    "first_name": "givenName",
+    "last_name": "sn",
+    "email": "mail",
+}
+
+# AUTH_LDAP_USER_FLAGS_BY_GROUP = {
+#     "is_active": "",
+#     "is_staff": "",
+# }

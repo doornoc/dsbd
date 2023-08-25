@@ -8,10 +8,23 @@ https://docs.djangoproject.com/en/4.2/howto/deployment/asgi/
 """
 
 import os
+
+import django
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 from django.core.asgi import get_asgi_application
+from django.core.handlers.asgi import ASGIHandler
+
+
+class ASGIHandlerTmp(ASGIHandler):
+    def __init__(self):
+        self.load_middleware(is_async=False)
+        super().__init__()
+
+
+# django.setup(set_prefix=False)
+# django_asgi_app = ASGIHandlerTmp()
 
 django_asgi_app = get_asgi_application()
 

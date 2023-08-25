@@ -98,7 +98,7 @@ def get_create_user(short, instance):
 def get_update_user(before, after):
     text = '%s----更新状況----\n' % (get_create_user(True, before),)
     if before.username != after.username:
-        text += 'username: %s => %s\n' % (before.name, after.name)
+        text += 'username: %s => %s\n' % (before.username, after.username)
     if before.first_name != after.first_name:
         text += '住所: %s => %s\n' % (before.first_name, after.first_name)
     if before.last_name != after.last_name:

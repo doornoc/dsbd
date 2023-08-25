@@ -23,17 +23,7 @@ from dsbd.ticket.models import Ticket
 
 
 def sign_in(request):
-    if request.method == 'POST':
-        form = LoginForm(request, data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            if user:
-                user_login(request, user)
-                return redirect("/")
-    else:
-        form = LoginForm()
-    context = {'form': form}
-    return render(request, "sign_in.html", context)
+    return redirect('/account/login')
 
 
 @login_required

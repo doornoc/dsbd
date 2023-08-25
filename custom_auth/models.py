@@ -164,7 +164,7 @@ class User(AbstractBaseUser):
 
 
 def user_activate_expire_date():
-    return timezone.now() + timezone.timedelta(days=settings.USER_ACTIVATE_EXPIRED_DAYS)
+    return timezone.now() + timezone.timedelta(hours=settings.USER_LOGIN_VERIFY_EMAIL_EXPIRED_HOURS)
 
 
 class UserActivateTokensManager(models.Manager):

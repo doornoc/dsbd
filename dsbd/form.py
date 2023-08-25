@@ -5,6 +5,30 @@ from custom_auth.models import User
 
 
 class LoginForm(AuthenticationForm):
+    token = forms.CharField(label="token", max_length=150, required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
+            field.widget.attrs['placeholder'] = field.label
+
+
+class AuthEmail(forms.Form):
+    token = forms.CharField(label="token", max_length=150, required=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
+            field.widget.attrs['placeholder'] = field.label
+
+
+class AuthTOTP(forms.Form):
+    token = forms.IntegerField(label="totp", required=True)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

@@ -10,36 +10,7 @@
     <a class="nav-link " href="{% url 'get_groups' %}" role="button" aria-expanded="false">グループ</a>
     <a class="nav-link " href="{% url 'service:index' %}" role="button" aria-expanded="false">サービス</a>
     <a class="nav-link " href="{% url 'ticket:index' %}" role="button" aria-expanded="false">チケット</a>
-    {#    <a class="nav-link " href="{% url 'assignment:search' %}" role="button" aria-expanded="false">アドレス検索</a>#}
-    {#    {% beta as is_beta %}#}
-    {#    {% if request.user.is_superuser and is_beta%}#}
-    {#        <li class="nav-item dropdown">#}
-    {#            <a class="nav-link dropdown-toggle" href="#" id="dropdown_assignment" role="button"#}
-    {#               data-bs-toggle="dropdown"#}
-    {#               aria-expanded="false">割当ツール</a>#}
-    {#            <div class="dropdown-menu" aria-labelledby="dropdown_assignment">#}
-    {#                <a class="dropdown-item" href="{% url 'assignment:add' %}">追加</a>#}
-    {#                <a class="dropdown-item" href="{% url 'assignment:change' %}">変更</a>#}
-    {#                <a class="dropdown-item" href="{% url 'assignment:delete' %}">返却</a>#}
-    {#            </div>#}
-    {#        </li>#}
-    {#        <li class="nav-item dropdown">#}
-    {#            <a class="nav-link dropdown-toggle" href="#" id="dropdown_person" role="button"#}
-    {#               data-bs-toggle="dropdown"#}
-    {#               aria-expanded="false">担当者ツール</a>#}
-    {#            <div class="dropdown-menu" aria-labelledby="dropdown_person">#}
-    {#                <a class="dropdown-item" href="{% url 'person:add' %}">追加</a>#}
-    {#                <a class="dropdown-item" href="{% url 'person:change' %}">変更</a>#}
-    {#            </div>#}
-    {#        </li>#}
-    {#    {% endif %}#}
-    {#    <li class="nav-item dropdown">#}
-    {#        <a class="nav-link dropdown-toggle" href="#" id="dropdown01" role="button" data-bs-toggle="dropdown"#}
-    {#           aria-expanded="false">エクスポート</a>#}
-    {#        <div class="dropdown-menu" aria-labelledby="dropdown01">#}
-    {#            <a class="dropdown-item" href="{% url 'resource:export_resources' %}">資源情報のエクスポート</a>#}
-    {#        </div>#}
-    {#    </li>#}
+    <a class="nav-link " href="{% url 'two_factor:profile' %}" role="button" aria-expanded="false">ユーザ設定</a>
     {% if request.user.is_staff %}
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="dropdown01" role="button" data-bs-toggle="dropdown"

@@ -60,11 +60,25 @@
                 {{ form.password }}
                 <label for="id_password">{{ form.password.label }}</label>
             </div>
-            <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
+            {% if type == 1 %}
+                <div class="logo">
+                    <h2 class="h3 mb-3 fw-normal">二段階認証</h2>
+                </div>
+                <div class="form-floating">
+                    <button type="submit" class="btn btn-primary btn-sm" name="auth_mail">メール認証</button>
+                    <button type="submit" class="btn btn-primary btn-sm" name="auth_totp">TOTP認証</button>
+                </div>
+            {% endif %}
+            {% if type != 1 %}
+                <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
+            {% endif %}
         </form>
         <br/>
-        <a class="nav-link " href="{% url 'password_reset' %}" role="button" aria-expanded="false">Forget password ?</a>
-        <a class="nav-link " href="{% url 'sign_up' %}" role="button" aria-expanded="false">sign up</a>
+        {% if type != 3 %}
+            <a class="nav-link " href="{% url 'password_reset' %}" role="button" aria-expanded="false">Forget password
+                ?</a>
+            <a class="nav-link " href="{% url 'sign_up' %}" role="button" aria-expanded="false">sign up</a>
+        {% endif %}
     </main>
 {% endblock content %}
 

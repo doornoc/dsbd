@@ -18,12 +18,17 @@ import debug_toolbar
 from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
+from two_factor.admin import AdminSiteOTPRequired
 
 from dsbd import views
 from custom_auth import views as custom_auth_views
+from two_factor.urls import urlpatterns as tf_urls
+
+admin.site.__class__ = AdminSiteOTPRequired
 
 urlpatterns = [
     path("", views.index, name="index"),
+    path('', include(tf_urls)),
     path("payment/", views.payment, name="payment"),
     path("sign_in/", views.sign_in, name="sign_in"),
     path("sign_out/", views.sign_out, name="sign_out"),

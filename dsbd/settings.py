@@ -238,22 +238,25 @@ AUTH_LDAP_USER_SEARCH = LDAPSearch(
     ldap.SCOPE_SUBTREE,
     "(uid=%(user)s)"
 )
+
+AUTH_LDAP_USER_ATTR_MAP = {
+    "first_name": os.environ.get('AUTH_LDAP_ATTR_FIRSTNAME', 'givenName'),
+    "last_name": os.environ.get('AUTH_LDAP_ATTR_LASTNAME', 'sn'),
+    "email": os.environ.get('AUTH_LDAP_ATTR_MAIL', 'mail'),
+}
+AUTH_LDAP_GROUP_TYPE = _import_ldap_group_type(os.environ.get('AUTH_LDAP_GROUP_TYPE', 'PosixGroupType'))
+
+AUTH_LDAP_REQUIRE_GROUP_DN = os.environ.get('AUTH_LDAP_REQUIRE_GROUP_DN')
+
 AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
     os.environ.get('AUTH_LDAP_GROUP_SEARCH_BASE_DN', ''),
     ldap.SCOPE_SUBTREE,
-    "(objectClass=groupOfNames)",
+    "(objectClass=posixGroup)",
 )
-# AUTH_LDAP_GROUP_TYPE = GroupOfNamesType(name_attr="cn")
-# AUTH_LDAP_FIND_GROUP_PERMS = True
-AUTH_LDAP_GROUP_TYPE = _import_ldap_group_type(os.environ.get('AUTH_LDAP_GROUP_TYPE', 'PosixGroupType'))
 
-AUTH_LDAP_USER_ATTR_MAP = {
-    "first_name": "givenName",
-    "last_name": "sn",
-    "email": "mail",
+AUTH_LDAP_FIND_GROUP_PERMS = True
+
+AUTH_LDAP_USER_FLAGS_BY_GROUP = {
+    "is_active": os.environ.get('AUTH_LDAP_REQUIRE_GROUP_DN', ''),
+    "is_staff": os.environ.get('AUTH_LDAP_IS_ADMIN_DN', ''),
 }
-
-# AUTH_LDAP_USER_FLAGS_BY_GROUP = {
-#     "is_active": "",
-#     "is_staff": "",
-# }

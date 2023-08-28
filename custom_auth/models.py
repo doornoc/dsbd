@@ -8,7 +8,10 @@ from django.contrib.auth.models import PermissionsMixin, AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.mail import send_mail
 from django.db import models
+from django.template.loader import render_to_string
 from django.utils import timezone
+
+from custom_auth.tool import random_string
 
 
 class GroupManager(models.Manager):
@@ -167,6 +170,10 @@ def user_activate_expire_date():
     return timezone.now() + timezone.timedelta(hours=settings.USER_LOGIN_VERIFY_EMAIL_EXPIRED_HOURS)
 
 
+def email_verify_expire_date():
+    return timezone.now() + timezone.timedelta(hours=settings.USER_LOGIN_VERIFY_EMAIL_EXPIRED_MINUTES)
+
+
 class UserActivateTokensManager(models.Manager):
     def activate_user_by_token(self, activate_token):
         if not self.filter(token=activate_token, expired_at__gt=timezone.now()).exists():
@@ -258,3 +265,47 @@ class UserGroup(models.Model):
 
     def __str__(self):
         return "%s-%s" % (self.user.username, self.group.name)
+
+
+class UserEmailVerifyManager(models.Manager):
+    def create_token(self, user=None):
+        if not user:
+            raise ValueError("user_id is not found......")
+        code = random_string(10)
+        self.create(user_id=user.id, token=code)
+        subject = "認証コード"
+        message = render_to_string("mail/account/two_auth.txt", {
+            "code": code,
+            "expired_time": settings.USER_LOGIN_VERIFY_EMAIL_EXPIRED_MINUTES
+        })
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=False)
+
+    def check_token(self, user_id=None, token=''):
+        if not user_id:
+            raise ValueError("user_id is not found......")
+        try:
+            sign_up_key = self.filter(token=token, expired_at__gt=timezone.now(), is_used=False).first()
+        except:
+            return False
+        # keyがない時
+        if not sign_up_key:
+            return False
+        sign_up_key.delete()
+        return True
+
+
+class UserEmailVerify(models.Model):
+    created_at = models.DateTimeField("作成日", default=timezone.now)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    token = models.CharField("token", max_length=100)
+    expired_at = models.DateTimeField("有効期限", default=email_verify_expire_date)
+    is_used = models.BooleanField("使用済み", default=False)
+
+    objects = UserEmailVerifyManager()
+
+    class Meta:
+        verbose_name = 'E-Mail用のVerify'
+        verbose_name_plural = "E-Mail用のVerify"
+
+    def __str__(self):
+        return "%d[%s]: %s" % (self.id, self.user.username, self.token)

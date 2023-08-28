@@ -14,8 +14,8 @@ from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from custom_auth.models import UserActivateToken, SignUpKey, User, Group
-from dsbd.form import LoginForm, ForgetForm, NewSetPasswordForm, SignUpForm
+from custom_auth.models import UserActivateToken, SignUpKey, User, Group, UserEmailVerify
+from dsbd.form import LoginForm, ForgetForm, NewSetPasswordForm, SignUpForm, OTPForm
 from dsbd.notice.models import Notice
 from dsbd.notify import notice_payment
 from dsbd.service.models import Service
@@ -23,7 +23,49 @@ from dsbd.ticket.models import Ticket
 
 
 def sign_in(request):
-    return redirect('/account/login')
+    if request.user.is_authenticated:
+        request.session.clear()
+    auth_type = 'auth'
+    invalid_code = False
+    if request.method == 'POST':
+        auth_type = request.POST.get("id", "auth")
+        if auth_type == 'auth':
+            form = LoginForm(request, data=request.POST)
+            if form.is_valid():
+                user = form.get_user()
+                if user:
+                    request.session["user"] = user.id
+                    auth_type = 'otp'
+                    print(request)
+                    # return redirect("/")
+        elif auth_type == 'otp':
+            form = OTPForm()
+            auth_type = request.POST.get("otp_id", "auth_otp_email")
+            if auth_type == "auth_otp_email":
+                user = User.objects.get(id=int(request.session.get('user')))
+                UserEmailVerify.objects.create_token(user=user)
+        elif auth_type == 'auth_otp_email':
+            form = OTPForm(request.POST)
+            if form.is_valid():
+                user = User.objects.get(id=int(request.session.get('user')))
+                is_exists = UserEmailVerify.objects.check_token(user_id=user.id, token=form.cleaned_data["token"])
+                if is_exists:
+                    user_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                    return redirect("/")
+            form = OTPForm()
+            invalid_code = True
+
+        else:
+            form = LoginForm()
+            request.session.clear()
+
+    else:
+        form = LoginForm()
+        request.session.clear()
+    context = {'type': auth_type, 'form': form}
+    if invalid_code:
+        context['invalid_code'] = '認証コードが一致しません'
+    return render(request, "sign_in.html", context)
 
 
 @login_required

@@ -14,13 +14,9 @@ cryptography==41.0.2
 daphne==4.0.0
 Django==4.2.4
 django-auth-ldap==4.5.0
-django-bootstrap-form==3.4
 django-debug-toolbar==4.2.0
 django-formtools==2.4.1
-django-otp==1.2.2
-django-otp-yubikey==1.0.1
 django-phonenumber-field==6.4.0
-django-two-factor-auth==1.15.4
 django-widget-tweaks==1.4.12
 h2==4.1.0
 hpack==4.0.0

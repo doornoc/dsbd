@@ -15,7 +15,7 @@ class LoginForm(AuthenticationForm):
             field.widget.attrs['placeholder'] = field.label
 
 
-class AuthEmail(forms.Form):
+class OTPForm(forms.Form):
     token = forms.CharField(label="token", max_length=150, required=True)
 
     def __init__(self, *args, **kwargs):

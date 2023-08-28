@@ -10,7 +10,6 @@
     <a class="nav-link " href="{% url 'get_groups' %}" role="button" aria-expanded="false">グループ</a>
     <a class="nav-link " href="{% url 'service:index' %}" role="button" aria-expanded="false">サービス</a>
     <a class="nav-link " href="{% url 'ticket:index' %}" role="button" aria-expanded="false">チケット</a>
-    <a class="nav-link " href="{% url 'two_factor:profile' %}" role="button" aria-expanded="false">ユーザ設定</a>
     {% if request.user.is_staff %}
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="dropdown01" role="button" data-bs-toggle="dropdown"

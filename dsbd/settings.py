@@ -56,18 +56,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'custom_auth',
-    'django_otp',
-    'django_otp.plugins.otp_static',
-    'django_otp.plugins.otp_totp',
-    'django_otp.plugins.otp_email',
-    'otp_yubikey',
-    'two_factor',
-    'two_factor.plugins.phonenumber',
-    'two_factor.plugins.email',
-    'two_factor.plugins.yubikey',
-    'two_factor.plugins.webauthn',
     'widget_tweaks',
-    'bootstrapform',
     'dsbd.notice',
     'dsbd.service',
     'dsbd.service.wireguard',
@@ -83,7 +72,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_otp.middleware.OTPMiddleware'
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -208,14 +196,13 @@ if DEBUG:
     INSTALLED_APPS.append('debug_toolbar')
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
 
-# LOGIN_URL = "sign_in"
-# LOGIN_REDIRECT_URL = "/"
-LOGIN_URL = 'two_factor:login'
-LOGIN_REDIRECT_URL = 'two_factor:profile'
+LOGIN_URL = "sign_in"
+LOGIN_REDIRECT_URL = "/"
 
 DOMAIN_URL = os.environ.get('DOMAIN_URL', 'http://localhost:8000')
 
 USER_LOGIN_VERIFY_EMAIL_EXPIRED_HOURS = os.environ.get('USER_LOGIN_VERIFY_EMAIL_EXPIRED_HOURS', 1)
+USER_LOGIN_VERIFY_EMAIL_EXPIRED_MINUTES = os.environ.get('USER_LOGIN_VERIFY_EMAIL_EXPIRED_MINUTES', 10)
 USER_ACTIVATE_EXPIRED_DAYS = os.environ.get('USER_ACTIVATE_EXPIRED_DAYS', 7)
 SIGN_UP_EXPIRED_DAYS = os.environ.get('SIGN_UP_EXPIRED_DAYS', 7)
 

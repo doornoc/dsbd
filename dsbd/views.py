@@ -36,14 +36,17 @@ def sign_in(request):
                 if user:
                     request.session["user"] = user.id
                     auth_type = 'otp'
-                    print(request)
-                    # return redirect("/")
         elif auth_type == 'otp':
             form = OTPForm()
             auth_type = request.POST.get("otp_id", "auth_otp_email")
             if auth_type == "auth_otp_email":
                 user = User.objects.get(id=int(request.session.get('user')))
                 UserEmailVerify.objects.create_token(user=user)
+            elif auth_type == 'auth_otp_email':
+                user = User.objects.get(id=int(request.session.get('user')))
+                if not TOTPDevice.objects.filter(user=user, is_active=True).exists():
+                    invalid_code = 'TOTPデバイスが登録されていません。'
+
         elif auth_type == 'auth_otp_email':
             form = OTPForm(request.POST)
             if form.is_valid():
@@ -71,7 +74,7 @@ def sign_in(request):
     else:
         form = LoginForm()
         request.session.clear()
-    context = {'type': auth_type, 'form': form}
+    context = {'type': auth_type, 'form': form, }
     if invalid_code:
         context['invalid_code'] = '認証コードが一致しません'
     return render(request, "sign_in.html", context)

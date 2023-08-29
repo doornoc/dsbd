@@ -309,7 +309,7 @@ class UserEmailVerify(models.Model):
         verbose_name_plural = "E-Mail用のVerify"
 
     def __str__(self):
-        return "%d[%s]: %s" % (self.id, self.user.username, self.token)
+        return "%d[%s]" % (self.id, self.user.username,)
 
 
 class TOTPDeviceManager(models.Manager):
@@ -367,4 +367,4 @@ class TOTPDevice(models.Model):
         verbose_name_plural = "TOTP Device"
 
     def __str__(self):
-        return "%d[%s]: %s" % (self.id, self.user.username, self.token)
+        return "%d[%s]" % (self.id, self.user.username)

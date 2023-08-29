@@ -14,7 +14,7 @@ from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from custom_auth.models import UserActivateToken, SignUpKey, User, Group, UserEmailVerify
+from custom_auth.models import UserActivateToken, SignUpKey, User, Group, UserEmailVerify, TOTPDevice
 from dsbd.form import LoginForm, ForgetForm, NewSetPasswordForm, SignUpForm, OTPForm
 from dsbd.notice.models import Notice
 from dsbd.notify import notice_payment
@@ -54,7 +54,16 @@ def sign_in(request):
                     return redirect("/")
             form = OTPForm()
             invalid_code = True
-
+        elif auth_type == 'auth_totp':
+            form = OTPForm(request.POST)
+            if form.is_valid():
+                user = User.objects.get(id=int(request.session.get('user')))
+                is_exists = TOTPDevice.objects.check_totp(user=user, code=form.cleaned_data["token"])
+                if is_exists:
+                    user_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                    return redirect("/")
+            form = OTPForm()
+            invalid_code = True
         else:
             form = LoginForm()
             request.session.clear()

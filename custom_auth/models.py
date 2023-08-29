@@ -1,5 +1,6 @@
 import uuid
 
+import pyotp
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
@@ -306,6 +307,64 @@ class UserEmailVerify(models.Model):
     class Meta:
         verbose_name = 'E-Mail用のVerify'
         verbose_name_plural = "E-Mail用のVerify"
+
+    def __str__(self):
+        return "%d[%s]: %s" % (self.id, self.user.username, self.token)
+
+
+class TOTPDeviceManager(models.Manager):
+    def check_max_totp_device(self, user=None):
+        if not user:
+            raise ValueError("user_id is not found......")
+        return self.filter(user=user).count() <= 5
+
+    def generate_secret(self, email=""):
+        otp_secret = pyotp.random_base32()
+        return {
+            "secret": otp_secret,
+            "url": pyotp.totp.TOTP(otp_secret).provisioning_uri(name=email, issuer_name=settings.APP_NAME)
+        }
+
+    def create_secret(self, user=None, title='', otp_secret=''):
+        if not user:
+            raise ValueError("user_id is not found......")
+        self.create(title=title, user=user, secret=otp_secret, is_active=True)
+
+    def check_totp(self, user=None, code=''):
+        if not user:
+            raise ValueError("user_id is not found......")
+        totp_array = self.filter(user=user)
+        verify_code = False
+        for totp_array_one in totp_array:
+            totp = pyotp.TOTP(totp_array_one.secret)
+            verify_code = totp.verify(code)
+            if verify_code:
+                break
+        return verify_code
+
+    def list(self, user=None):
+        if not user:
+            raise ValueError("user_id is not found......")
+        return self.filter(user=user)
+
+    def remove(self, user=None, id=None):
+        if not user:
+            raise ValueError("user_id is not found......")
+        self.filter(user=user, id=id).delete()
+
+
+class TOTPDevice(models.Model):
+    created_at = models.DateTimeField("作成日", default=timezone.now)
+    title = models.CharField("title", max_length=100)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    secret = models.CharField("secret", max_length=100)
+    is_active = models.BooleanField("有効", default=False)
+
+    objects = TOTPDeviceManager()
+
+    class Meta:
+        verbose_name = 'TOTP Device'
+        verbose_name_plural = "TOTP Device"
 
     def __str__(self):
         return "%d[%s]: %s" % (self.id, self.user.username, self.token)

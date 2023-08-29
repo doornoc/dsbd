@@ -42,6 +42,7 @@ DEBUG = os.environ.get('DEBUG', 'false').lower() == 'true'
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(' ')
 CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:8000').split(' ')
 
+APP_NAME = 'doornoc_dsbd'
 SITE_TITLE = os.environ.get('SITE_TITLE', 'doornoc Dashboard')
 SITE_HEADER = os.environ.get('SITE_HEADER', 'doornoc Dashboard')
 

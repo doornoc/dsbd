@@ -26,7 +26,6 @@ from custom_auth import views as custom_auth_views
 urlpatterns = [
     path("", views.index, name="index"),
     path("payment/", views.payment, name="payment"),
-    # path("sign_in/", views.LoginView.as_view(), name="sign_in"),
     path("sign_in/", views.sign_in, name="sign_in"),
     path("sign_out/", views.sign_out, name="sign_out"),
     path("sign_up/", views.sign_up, name="sign_up"),
@@ -37,6 +36,7 @@ urlpatterns = [
     path('activate/<uuid:activate_token>/', views.activate_user, name='activate_user'),
     path("service/", include("dsbd.service.urls")),
     path("ticket/", include("dsbd.ticket.urls")),
+    path("profile/", include("custom_auth.urls")),
     path("stripe_webhook/", views.stripe_webhook, name="webhook"),
     path("group/", custom_auth_views.get_groups, name="get_groups"),
     path("group/add/", custom_auth_views.group_add, name="add_group"),

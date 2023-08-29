@@ -42,7 +42,7 @@ def sign_in(request):
             if auth_type == "auth_otp_email":
                 user = User.objects.get(id=int(request.session.get('user')))
                 UserEmailVerify.objects.create_token(user=user)
-            elif auth_type == 'auth_otp_email':
+            elif auth_type == 'auth_totp':
                 user = User.objects.get(id=int(request.session.get('user')))
                 if not TOTPDevice.objects.filter(user=user, is_active=True).exists():
                     invalid_code = 'TOTPデバイスが登録されていません。'

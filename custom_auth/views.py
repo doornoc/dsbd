@@ -49,6 +49,10 @@ def add_two_auth(request):
                     return redirect("custom_auth:list_two_auth")
                 else:
                     error = "コードが一致しません"
+            else:
+                error = "request error"
+        else:
+            error = "request error"
 
     context = {
         'initial_check': initial_check,

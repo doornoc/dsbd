@@ -99,8 +99,8 @@ def delete_chat(sender, instance, **kwargs):
 
 
 def get_create_chat(short, instance):
-    text = '--%d[%s]--\n[%s] User: %s| Group: %s\nTicket: %s\n' % (
-        instance.id, instance.title, 'ユーザ投稿' if instance.is_admin else '管理者投稿', instance.user, instance.group,
+    text = '--%d--\n[%s] User: %s| Group: %s\nTicket: %s\n' % (
+        instance.id, 'ユーザ投稿' if instance.is_admin else '管理者投稿', instance.user, instance.group,
         instance.ticket)
     return text if not short else text + 'body: %s\n' % (instance.body,)
 

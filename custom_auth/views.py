@@ -126,7 +126,7 @@ def get_groups(request):
 def group_add(request):
     error = None
     if request.method == 'POST':
-        form = GroupForm(request.POST)
+        form = GroupForm(data=request.POST)
         if not request.user.add_group:
             error = "グループの新規登録が申請不可能です"
         elif form.is_valid():

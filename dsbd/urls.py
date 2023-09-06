@@ -44,8 +44,10 @@ urlpatterns = [
     path("group/permission/<int:group_id>", custom_auth_views.group_permission, name="permission_group"),
     path("group/<int:group_id>/payment", custom_auth_views.group_payment, name="group_payment"),
     path('admin/custom/', include("dsbd.custom_admin.urls")),
+    path('admin/login/', views.admin_sign_in, name='admin_sign_in'),
     path('admin/', admin.site.urls),
 ]
+
 
 if settings.DEBUG:
     urlpatterns += [path('__debug__/', include(debug_toolbar.urls))]

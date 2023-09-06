@@ -367,3 +367,8 @@ def stripe_webhook(request):
                         group.save()
                 notice_payment(metadata_type, event_type=event["type"], data=data)
     return HttpResponse(status=200)
+
+
+@login_required
+def admin_sign_in(request):
+    return redirect("sign_in")

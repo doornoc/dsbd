@@ -21,29 +21,8 @@ services:
     container_name: wsgi_server
     depends_on:
       - database
-    environment:
-      DJANGO_SETTINGS_MODULE: dsbd.settings
-      SKIP_SUPERUSER: true
-      SUPERUSER_EMAIL: '{EMAIL}'
-      SUPERUSER_NAME: ''
-      SUPERUSER_PASSWORD: ''
-      SECRET_KEY: ''
-      DEBUG: True
-      DOMAIN_NAME: 'https://{DOMAIN}'
-      DATABASE_NAME: ''
-      DATABASE_USER: ''
-      DATABASE_PASSWORD: ''
-      DATABASE_HOST: 'database'
-      EMAIL_HOST: 'smtp.gmail.com'
-      EMAIL_PORT: 587
-      DEFAULT_FROM_EMAIL: ''
-      EMAIL_HOST_USER: ''
-      EMAIL_HOST_PASSWORD: ''
-      EMAIL_USE_TLS: True
-      STRIPE_PRIVATE_KEY: ''
-      STRIPE_SECRET_KEY: ''
-      STRIPE_WEBHOOK_SECRET_KEY: ''
-      SLACK_WEBHOOK_LOG: ''
+    env_file:
+      - dsbd.env
     ports:
       - 8000:8000
     restart: always
@@ -52,29 +31,8 @@ services:
     container_name: asgi_server
     depends_on:
       - database
-    environment:
-      DJANGO_SETTINGS_MODULE: dsbd.settings
-      SKIP_SUPERUSER: true
-      SUPERUSER_EMAIL: '{EMAIL}'
-      SUPERUSER_NAME: ''
-      SUPERUSER_PASSWORD: ''
-      SECRET_KEY: ''
-      DEBUG: True
-      DOMAIN_NAME: 'https://{DOMAIN}'
-      DATABASE_NAME: ''
-      DATABASE_USER: ''
-      DATABASE_PASSWORD: ''
-      DATABASE_HOST: 'database'
-      EMAIL_HOST: 'smtp.gmail.com'
-      EMAIL_PORT: 587
-      DEFAULT_FROM_EMAIL: ''
-      EMAIL_HOST_USER: ''
-      EMAIL_HOST_PASSWORD: ''
-      EMAIL_USE_TLS: True
-      STRIPE_PRIVATE_KEY: ''
-      STRIPE_SECRET_KEY: ''
-      STRIPE_WEBHOOK_SECRET_KEY: ''
-      SLACK_WEBHOOK_LOG: ''
+    env_file:
+      - dsbd.env
     command: daphne -b 0.0.0.0 -p 9000 dsbd.asgi:application
     ports:
       - 9000:9000
@@ -90,7 +48,7 @@ services:
     environment:
       DOMAIN: '{DOMAIN}'
     volumes:
-      - ./default.conf:/etc/nginx/conf.d/default.conf.template
+      - ./default-initial.conf:/etc/nginx/conf.d/default.conf.template
       - ./data/html:/usr/share/nginx/html
       - ./data/letsencrypt-data:/etc/letsencrypt
     command: /bin/sh -c "envsubst '$$DOMAIN'< /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"

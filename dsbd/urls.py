@@ -22,6 +22,7 @@ from django.urls import path, include
 from dsbd import views
 from custom_auth import views as custom_auth_views
 
+
 urlpatterns = [
     path("", views.index, name="index"),
     path("payment/", views.payment, name="payment"),
@@ -35,6 +36,7 @@ urlpatterns = [
     path('activate/<uuid:activate_token>/', views.activate_user, name='activate_user'),
     path("service/", include("dsbd.service.urls")),
     path("ticket/", include("dsbd.ticket.urls")),
+    path("profile/", include("custom_auth.urls")),
     path("stripe_webhook/", views.stripe_webhook, name="webhook"),
     path("group/", custom_auth_views.get_groups, name="get_groups"),
     path("group/add/", custom_auth_views.group_add, name="add_group"),
@@ -42,8 +44,10 @@ urlpatterns = [
     path("group/permission/<int:group_id>", custom_auth_views.group_permission, name="permission_group"),
     path("group/<int:group_id>/payment", custom_auth_views.group_payment, name="group_payment"),
     path('admin/custom/', include("dsbd.custom_admin.urls")),
+    path('admin/login/', views.admin_sign_in, name='admin_sign_in'),
     path('admin/', admin.site.urls),
 ]
+
 
 if settings.DEBUG:
     urlpatterns += [path('__debug__/', include(debug_toolbar.urls))]

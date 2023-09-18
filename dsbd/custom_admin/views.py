@@ -1,9 +1,11 @@
+import json
+
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, InvalidPage, Paginator
 from django.shortcuts import render, redirect
 
-from dsbd.service.wireguard.api import wg_overwrite
+from dsbd.service.wireguard.api import wg_overwrite, wg_get
 from dsbd.service.wireguard.models import Server as WireguardServer
 from dsbd.ticket.models import Ticket
 
@@ -69,6 +71,9 @@ def wireguard_list(request):
             server.save()
         elif "register" in request.POST:
             wg_overwrite(server)
+        elif "list" in request.POST:
+            res = wg_get(server)
+            return render(request, "custom_admin/wireguard/list.html", {'res': res})
         return redirect('/admin/custom/wireguard')
 
     paginator = Paginator(wireguard_server_objects, int(request.GET.get("per_page", "5")))

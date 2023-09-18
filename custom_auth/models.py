@@ -1,5 +1,6 @@
 import uuid
 
+import pyotp
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
@@ -8,7 +9,10 @@ from django.contrib.auth.models import PermissionsMixin, AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.mail import send_mail
 from django.db import models
+from django.template.loader import render_to_string
 from django.utils import timezone
+
+from custom_auth.tool import random_string
 
 
 class GroupManager(models.Manager):
@@ -89,12 +93,10 @@ class UserManager(BaseUserManager):
 
     def create_superuser(self, username, email=None, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
-        extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("is_active", True)
 
         if extra_fields.get("is_staff") is not True:
             raise ValueError("Superuser must have is_staff=True.")
-        if extra_fields.get("is_superuser") is not True:
-            raise ValueError("Superuser must have is_superuser=True.")
 
         return self._create_user(username, email, password, **extra_fields)
 
@@ -166,7 +168,11 @@ class User(AbstractBaseUser):
 
 
 def user_activate_expire_date():
-    return timezone.now() + timezone.timedelta(days=settings.USER_ACTIVATE_EXPIRED_DAYS)
+    return timezone.now() + timezone.timedelta(hours=settings.USER_LOGIN_VERIFY_EMAIL_EXPIRED_HOURS)
+
+
+def email_verify_expire_date():
+    return timezone.now() + timezone.timedelta(hours=settings.USER_LOGIN_VERIFY_EMAIL_EXPIRED_MINUTES)
 
 
 class UserActivateTokensManager(models.Manager):
@@ -260,3 +266,105 @@ class UserGroup(models.Model):
 
     def __str__(self):
         return "%s-%s" % (self.user.username, self.group.name)
+
+
+class UserEmailVerifyManager(models.Manager):
+    def create_token(self, user=None):
+        if not user:
+            raise ValueError("user_id is not found......")
+        code = random_string(10)
+        self.create(user_id=user.id, token=code)
+        subject = "認証コード"
+        message = render_to_string("mail/account/two_auth.txt", {
+            "code": code,
+            "expired_time": settings.USER_LOGIN_VERIFY_EMAIL_EXPIRED_MINUTES
+        })
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=False)
+
+    def check_token(self, user_id=None, token=''):
+        if not user_id:
+            raise ValueError("user_id is not found......")
+        try:
+            sign_up_key = self.filter(token=token, expired_at__gt=timezone.now(), is_used=False).first()
+        except:
+            return False
+        # keyがない時
+        if not sign_up_key:
+            return False
+        sign_up_key.delete()
+        return True
+
+
+class UserEmailVerify(models.Model):
+    created_at = models.DateTimeField("作成日", default=timezone.now)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    token = models.CharField("token", max_length=100)
+    expired_at = models.DateTimeField("有効期限", default=email_verify_expire_date)
+    is_used = models.BooleanField("使用済み", default=False)
+
+    objects = UserEmailVerifyManager()
+
+    class Meta:
+        verbose_name = 'E-Mail用のVerify'
+        verbose_name_plural = "E-Mail用のVerify"
+
+    def __str__(self):
+        return "%d[%s]" % (self.id, self.user.username,)
+
+
+class TOTPDeviceManager(models.Manager):
+    def check_max_totp_device(self, user=None):
+        if not user:
+            raise ValueError("user_id is not found......")
+        return self.filter(user=user).count() <= 5
+
+    def generate_secret(self, email=""):
+        otp_secret = pyotp.random_base32()
+        return {
+            "secret": otp_secret,
+            "url": pyotp.totp.TOTP(otp_secret).provisioning_uri(name=email, issuer_name=settings.APP_NAME)
+        }
+
+    def create_secret(self, user=None, title='', otp_secret=''):
+        if not user:
+            raise ValueError("user_id is not found......")
+        self.create(title=title, user=user, secret=otp_secret, is_active=True)
+
+    def check_totp(self, user=None, code=''):
+        if not user:
+            raise ValueError("user_id is not found......")
+        totp_array = self.filter(user=user)
+        verify_code = False
+        for totp_array_one in totp_array:
+            totp = pyotp.TOTP(totp_array_one.secret)
+            verify_code = totp.verify(code)
+            if verify_code:
+                break
+        return verify_code
+
+    def list(self, user=None):
+        if not user:
+            raise ValueError("user_id is not found......")
+        return self.filter(user=user)
+
+    def remove(self, user=None, id=None):
+        if not user:
+            raise ValueError("user_id is not found......")
+        self.filter(user=user, id=id).delete()
+
+
+class TOTPDevice(models.Model):
+    created_at = models.DateTimeField("作成日", default=timezone.now)
+    title = models.CharField("title", max_length=100)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    secret = models.CharField("secret", max_length=100)
+    is_active = models.BooleanField("有効", default=False)
+
+    objects = TOTPDeviceManager()
+
+    class Meta:
+        verbose_name = 'TOTP Device'
+        verbose_name_plural = "TOTP Device"
+
+    def __str__(self):
+        return "%d[%s]" % (self.id, self.user.username)

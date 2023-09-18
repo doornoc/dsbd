@@ -38,6 +38,7 @@
                                    href="/admin/wireguard/server/{{ e.id }}/change">編集</a>
                                 <input type="text" value={{ e.id }} name="id" hidden>
                                 {% if e.is_active %}
+                                    <button type="submit" class="btn btn-primary btn-sm" name="list">現在の登録情報</button>
                                     <button type="submit" class="btn btn-primary btn-sm" name="register">再登録</button>
                                     <button type="submit" class="btn btn-danger btn-sm" name="inactive">無効</button>
                                 {% else %}

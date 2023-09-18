@@ -19,15 +19,16 @@ class Ticket(admin.ModelAdmin):
 
 @admin.register(Template)
 class Template(admin.ModelAdmin):
-    readonly_fields = ['created_at']
+    readonly_fields = ['id', 'created_at']
     fieldsets = (
-        (None, {"fields": ("id", "created_at", "is_active", 'comment')}),
+        (None, {"fields": ("id", "number", "created_at", "is_active", 'comment')}),
         ('info', {'fields': ('type1', 'type2', 'title', 'body')}),
     )
     list_display = (
-        "id", "created_at", "is_active", "type1", 'type2', 'title')
+        "number", "created_at", "is_active", "type1", 'type2', 'title')
     list_filter = ("is_active",)
     search_fields = ("is_active", "type1', 'type2', 'title")
+    ordering = ['number']
 
 
 @admin.register(Chat)

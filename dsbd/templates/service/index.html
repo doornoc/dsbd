@@ -16,6 +16,7 @@
                         {% markdown e.content %}
                     {% endautoescape %}
                     {% if e.wireguard_service %}
+                    <div class="table-responsive">
                         <table class="table">
                             <tr>
                                 <th scope="row" class="table-active">割当IPv4</th>
@@ -44,7 +45,8 @@
                                 <td colspan="2">{{ e.wireguard_service.server.public_key }}</td>
                             </tr>
                         </table>
-                        <h6>Wireguardの設定例↓</h6>
+                    </div>
+                    <h6>Wireguardの設定例↓</h6>
 <pre><code>
 [Interface]
 {% if e.wireguard_service.ipv4 %}Address = {{ e.wireguard_service.ipv4 }}/{{ e.wireguard_service.server.size }}{% endif %}

@@ -2,6 +2,26 @@ from django.conf import settings
 from slack_sdk import WebhookClient
 
 
+def notify_db_save(table_name="", type=0, data=""):
+    event_name = "create"
+    color = "good"
+    if type == 1:
+        event_name = "update"
+    if type == 2:
+        event_name = "delete"
+        color = "danger"
+    client = WebhookClient(settings.SLACK_WEBHOOK_LOG)
+    client.send(
+        text="[%s(%s)]" % (table_name, event_name),
+        attachments=[
+            {
+                "color": color,
+                "title": "[%s(%s)]" % (table_name, event_name),
+                "text": "%s" % (data,)
+            }
+        ])
+
+
 def notice_payment(metadata_type="", event_type="", data=None):
     client = WebhookClient(settings.SLACK_WEBHOOK_LOG)
     client.send(

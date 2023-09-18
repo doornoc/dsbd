@@ -7,11 +7,12 @@ from dsbd.models import MediumTextField
 
 class TemplateManager(models.Manager):
     def get_template(self):
-        return self.filter(is_active=True).order_by('type1', 'type2')
+        return self.filter(is_active=True).order_by('number','type1', 'type2')
 
 
 class Template(models.Model):
-    id = models.IntegerField("ID", auto_created=True, primary_key=True, editable=True)
+    id = models.IntegerField("ID", auto_created=True, primary_key=True)
+    number = models.IntegerField("順序", auto_created=True, default=100)
     created_at = models.DateTimeField("作成日", auto_now_add=True, db_index=True)
     is_active = models.BooleanField("有効", default=True)
     type1 = models.CharField("type1", max_length=200)

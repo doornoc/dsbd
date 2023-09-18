@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2 class="card-title">Wireguard(登録情報結果)</h2>
+    <br/>
+    {#    <a class="btn btn-primary btn-sm " href="{% url 'ticket:add' %}" role="button" aria-expanded="false">チケット追加</a>#}
+    <br/>
+    <br/>
+    {% if res %}
+        <pre><code>{{ res }}</code></pre>
+    {% else %}
+        <p>取得に失敗しました</p>
+    {% endif %}
+{% endblock content %}

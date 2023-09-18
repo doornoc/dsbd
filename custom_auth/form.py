@@ -4,7 +4,7 @@ from custom_auth.models import Group, User, UserGroup
 
 
 class GroupForm(forms.Form):
-    name = forms.CharField(label="名前", max_length=150, required=True)
+    name = forms.CharField(label="グループ名", max_length=150, required=True)
     zipcode = forms.CharField(label="郵便番号", max_length=10, required=True)
     address = forms.CharField(label="住所", max_length=250, required=True)
     address_en = forms.CharField(label="住所(English)", max_length=250, required=True)
@@ -73,3 +73,15 @@ class GroupForm(forms.Form):
             group.save()
         except:
             raise ValueError("グループの更新に失敗しました")
+
+
+class TwoAuthForm(forms.Form):
+    title = forms.CharField(label="名前", max_length=100, required=True)
+    code = forms.CharField(label="code", max_length=6, min_length=6, required=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
+            field.widget.attrs['placeholder'] = field.label

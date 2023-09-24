@@ -228,18 +228,19 @@ AUTH_LDAP_USER_SEARCH = LDAPSearch(
 )
 
 AUTH_LDAP_USER_ATTR_MAP = {
+    "username": "sAMAccountName"
     "first_name": os.environ.get('AUTH_LDAP_ATTR_FIRSTNAME', 'givenName'),
     "last_name": os.environ.get('AUTH_LDAP_ATTR_LASTNAME', 'sn'),
     "email": os.environ.get('AUTH_LDAP_ATTR_MAIL', 'mail'),
 }
-AUTH_LDAP_GROUP_TYPE = _import_ldap_group_type(os.environ.get('AUTH_LDAP_GROUP_TYPE', 'PosixGroupType'))
+AUTH_LDAP_GROUP_TYPE = _import_ldap_group_type(os.environ.get('AUTH_LDAP_GROUP_TYPE', 'GroupOfNamesType'))
 
 AUTH_LDAP_REQUIRE_GROUP_DN = os.environ.get('AUTH_LDAP_REQUIRE_GROUP_DN')
 
 AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
     os.environ.get('AUTH_LDAP_GROUP_SEARCH_BASE_DN', ''),
     ldap.SCOPE_SUBTREE,
-    "(objectClass=posixGroup)",
+    "(objectClass=group)",
 )
 
 AUTH_LDAP_FIND_GROUP_PERMS = True

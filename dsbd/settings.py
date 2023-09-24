@@ -228,7 +228,7 @@ AUTH_LDAP_USER_SEARCH = LDAPSearch(
 )
 
 AUTH_LDAP_USER_ATTR_MAP = {
-    "username": "sAMAccountName"
+    "username": os.environ.get('AUTH_LDAP_ATTR_USERNAME', 'sAMAccountName'),
     "first_name": os.environ.get('AUTH_LDAP_ATTR_FIRSTNAME', 'givenName'),
     "last_name": os.environ.get('AUTH_LDAP_ATTR_LASTNAME', 'sn'),
     "email": os.environ.get('AUTH_LDAP_ATTR_MAIL', 'mail'),

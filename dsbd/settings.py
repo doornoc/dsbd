@@ -221,14 +221,14 @@ TWO_FACTOR_WEBAUTHN_RP_NAME = 'doornoc_dsbd'
 AUTH_LDAP_SERVER_URI = os.environ.get('AUTH_LDAP_SERVER_URI', '')
 AUTH_LDAP_BIND_DN = os.environ.get('AUTH_LDAP_BIND_DN', '')
 AUTH_LDAP_BIND_PASSWORD = os.environ.get('AUTH_LDAP_BIND_PASSWORD', '')
+AUTH_LDAP_USER_SEARCH_ATTR = os.environ.get('AUTH_LDAP_USER_SEARCH_ATTR', 'sAMAccountName')
 AUTH_LDAP_USER_SEARCH = LDAPSearch(
     os.environ.get('AUTH_LDAP_USER_SEARCH_BASE_DN', ''),
     ldap.SCOPE_SUBTREE,
-    "(uid=%(user)s)"
+    f'({AUTH_LDAP_USER_SEARCH_ATTR}=%(user)s)'
 )
 
 AUTH_LDAP_USER_ATTR_MAP = {
-    "username": os.environ.get('AUTH_LDAP_ATTR_USERNAME', 'sAMAccountName'),
     "first_name": os.environ.get('AUTH_LDAP_ATTR_FIRSTNAME', 'givenName'),
     "last_name": os.environ.get('AUTH_LDAP_ATTR_LASTNAME', 'sn'),
     "email": os.environ.get('AUTH_LDAP_ATTR_MAIL', 'mail'),

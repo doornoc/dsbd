@@ -235,7 +235,7 @@ AUTH_LDAP_USER_ATTR_MAP = {
 }
 AUTH_LDAP_GROUP_TYPE = _import_ldap_group_type(os.environ.get('AUTH_LDAP_GROUP_TYPE', 'GroupOfNamesType'))
 
-AUTH_LDAP_REQUIRE_GROUP_DN = os.environ.get('AUTH_LDAP_REQUIRE_GROUP_DN')
+AUTH_LDAP_REQUIRE_GROUP = os.environ.get('AUTH_LDAP_REQUIRE_GROUP_DN')
 
 AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
     os.environ.get('AUTH_LDAP_GROUP_SEARCH_BASE_DN', ''),

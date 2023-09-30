@@ -32,6 +32,8 @@ jobs:
         with:
           images: doornoc/dsbd
 
+      - uses: docker/setup-buildx-action@v3
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
@@ -39,3 +41,5 @@ jobs:
           push: true
           tags: doornoc/dsbd:develop
           labels: "develop version"
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

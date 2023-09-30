@@ -207,17 +207,15 @@ USER_LOGIN_VERIFY_EMAIL_EXPIRED_MINUTES = os.environ.get('USER_LOGIN_VERIFY_EMAI
 USER_ACTIVATE_EXPIRED_DAYS = os.environ.get('USER_ACTIVATE_EXPIRED_DAYS', 7)
 SIGN_UP_EXPIRED_DAYS = os.environ.get('SIGN_UP_EXPIRED_DAYS', 7)
 
-## Stripe
+# Stripe
 STRIPE_PRIVATE_KEY = os.environ.get('STRIPE_PRIVATE_KEY', '')
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
 STRIPE_WEBHOOK_SECRET_KEY = os.environ.get('STRIPE_WEBHOOK_SECRET_KEY', '')
 
-## Slack
+# Slack
 SLACK_WEBHOOK_LOG = os.environ.get('SLACK_WEBHOOK_LOG', '')
 
-TWO_FACTOR_WEBAUTHN_RP_NAME = 'doornoc_dsbd'
-
-## LDAP
+# LDAP
 AUTH_LDAP_SERVER_URI = os.environ.get('AUTH_LDAP_SERVER_URI', '')
 AUTH_LDAP_BIND_DN = os.environ.get('AUTH_LDAP_BIND_DN', '')
 AUTH_LDAP_BIND_PASSWORD = os.environ.get('AUTH_LDAP_BIND_PASSWORD', '')
@@ -227,24 +225,19 @@ AUTH_LDAP_USER_SEARCH = LDAPSearch(
     ldap.SCOPE_SUBTREE,
     f'({AUTH_LDAP_USER_SEARCH_ATTR}=%(user)s)'
 )
-
 AUTH_LDAP_USER_ATTR_MAP = {
     "first_name": os.environ.get('AUTH_LDAP_ATTR_FIRSTNAME', 'givenName'),
     "last_name": os.environ.get('AUTH_LDAP_ATTR_LASTNAME', 'sn'),
     "email": os.environ.get('AUTH_LDAP_ATTR_MAIL', 'mail'),
 }
 AUTH_LDAP_GROUP_TYPE = _import_ldap_group_type(os.environ.get('AUTH_LDAP_GROUP_TYPE', 'GroupOfNamesType'))
-
 AUTH_LDAP_REQUIRE_GROUP = os.environ.get('AUTH_LDAP_REQUIRE_GROUP_DN')
-
 AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
     os.environ.get('AUTH_LDAP_GROUP_SEARCH_BASE_DN', ''),
     ldap.SCOPE_SUBTREE,
     "(objectClass=group)",
 )
-
 AUTH_LDAP_FIND_GROUP_PERMS = True
-
 AUTH_LDAP_USER_FLAGS_BY_GROUP = {
     "is_active": os.environ.get('AUTH_LDAP_REQUIRE_GROUP_DN', ''),
     "is_staff": os.environ.get('AUTH_LDAP_IS_ADMIN_DN', ''),

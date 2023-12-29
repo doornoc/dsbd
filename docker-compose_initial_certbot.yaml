@@ -14,7 +14,7 @@ services:
     volumes:
       - ./data/mysql-data:/var/lib/mysql
     ports:
-      - 3306:3306
+      - 127.0.0.1:3306:3306
     restart: always
   wsgi_server:
     image: doornoc/dsbd:develop
@@ -24,7 +24,7 @@ services:
     env_file:
       - dsbd.env
     ports:
-      - 8000:8000
+      - 127.0.0.1:8000:8000
     restart: always
   asgi_server:
     image: doornoc/dsbd:develop
@@ -35,7 +35,7 @@ services:
       - dsbd.env
     command: daphne -b 0.0.0.0 -p 9000 dsbd.asgi:application
     ports:
-      - 9000:9000
+      - 127.0.0.1:9000:9000
     restart: always
   nginx:
     image: nginx:stable
